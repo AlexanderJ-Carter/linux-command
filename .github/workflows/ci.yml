@@ -43,7 +43,7 @@ jobs:
 
             - name: Build Linux Command
               run: |
-                  npm ci
+                  npm install
                   npm run dash
                   if [ -f CONTRIBUTORS.svg ]; then cp CONTRIBUTORS.svg .deploy; fi
 
