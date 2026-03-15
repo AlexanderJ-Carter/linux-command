@@ -3,6 +3,7 @@ on:
     push:
         branches:
             - master
+            - main
 
 jobs:
     build-deploy:
@@ -20,13 +21,14 @@ jobs:
             - name: Generate Contributors Images
               uses: jaywcjlove/github-action-contributors@main
               id: contributors
+              continue-on-error: true
               with:
                   filter-author: (renovate\[bot\]|renovate-bot|@github-actions-bot|dependabot\[bot\])
                   avatarSize: 42
 
-            # Fork 已精简 README，不再注入贡献者列表，故跳过 Modify README.md
             - name: Modify contributors.ejs
               uses: jaywcjlove/github-action-modify-file-content@main
+              continue-on-error: true
               with:
                   path: template/contributors.ejs
                   trim_whitespace: false
@@ -35,33 +37,35 @@ jobs:
                   body: |
                       ${{steps.contributors.outputs.htmlList}}
 
-            - run: npm install
-            - run: npm run dash
-            - run: cp CONTRIBUTORS.svg .deploy
-
             - name: Build Linux Command
               run: |
-                  npm install
+                  npm ci
                   npm run dash
-                  cp CONTRIBUTORS.svg .deploy
+                  if [ -f CONTRIBUTORS.svg ]; then cp CONTRIBUTORS.svg .deploy; fi
 
             - name: Create Tag
               id: create_tag
               uses: jaywcjlove/create-tag-action@main
+              continue-on-error: true
               with:
                   package-path: ./package.json
 
             - name: Get Tag Version
               id: tag_version
               uses: jaywcjlove/changelog-generator@main
+              continue-on-error: true
 
             - name: Update Dash Feed
               run: |
-                  echo "<entry><version>${{steps.create_tag.outputs.versionNumber}}</version><url>https://jaywcjlove.github.io/linux-command/linux-command.docset.tgz</url></entry>" > .deploy/linux-command-docset.xml
+                  VERSION="${{ steps.create_tag.outputs.versionNumber || 'deploy' }}"
+                  REPO_NAME="${GITHUB_REPOSITORY#*/}"
+                  BASE_URL="https://${{ github.repository_owner }}.github.io/${REPO_NAME}"
+                  echo "<entry><version>${VERSION}</version><url>${BASE_URL}/linux-command.docset.tgz</url></entry>" > .deploy/linux-command-docset.xml
 
             - name: Generate Changelog
               id: changelog
               uses: jaywcjlove/changelog-generator@main
+              continue-on-error: true
               with:
                   filter-author: (小弟调调™)
                   filter: (^[\s]+?[R|r]elease)|(^[R|r]elease)
@@ -116,10 +120,10 @@ jobs:
 
             - run: rm -rf .deploy/linux-command.docset
 
-            - name: Deploy
+            - name: Deploy to GitHub Pages
               uses: peaceiris/actions-gh-pages@v4
               with:
-                  commit_message: '[${{steps.tag_version.outputs.tag}}] ${{ github.event.head_commit.message }}'
+                  commit_message: 'Deploy: ${{ github.sha }} - ${{ github.event.head_commit.message }}'
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: ./.deploy
                   user_name: github-actions[bot]
@@ -129,17 +133,19 @@ jobs:
               continue-on-error: true
               name: 📦 linux-command publish to NPM
 
-            # Create Docker Image
+            # Docker 构建并推送（未配置 DOCKER_USER/DOCKER_PASSWORD 时跳过，不报错）
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
             - name: Login to Docker Hub
               uses: docker/login-action@v3
+              continue-on-error: true
               with:
                   username: ${{ secrets.DOCKER_USER }}
                   password: ${{ secrets.DOCKER_PASSWORD }}
 
             - name: Build and push image:latest
               uses: docker/build-push-action@v6
+              continue-on-error: true
               with:
                   push: true
                   context: .
@@ -149,6 +155,7 @@ jobs:
             - name: Build and push image:tags
               uses: docker/build-push-action@v6
               if: steps.create_tag.outputs.successful
+              continue-on-error: true
               with:
                   push: true
                   context: .
