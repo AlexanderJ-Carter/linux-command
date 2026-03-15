@@ -11,7 +11,7 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-jaywcjlove%2Flinux--command-333?logo=github)](https://github.com/jaywcjlove/linux-command)
 [![NPM](https://img.shields.io/npm/dm/linux-command.svg?style=flat)](https://www.npmjs.com/package/linux-command)
-[![Docker](https://img.shields.io/docker/image-size/wcjiang/linux-command?logo=docker)](https://hub.docker.com/r/wcjiang/linux-command)
+[![Container](https://img.shields.io/badge/ghcr.io-jaywcjlove/linux--command-blue?logo=docker)](https://ghcr.io/jaywcjlove/linux-command)
 
 当前仓库搜集了 600 多个 Linux 命令，生成 Web 站点便于查阅，内容包含 Linux 命令手册、详解与学习，来自网络与网友补充，适合作为速查手册。版权归原作者，Fork 仅作学习与备份。
 
@@ -29,18 +29,18 @@ Chrome 插件、Alfred、Dash、Krunner、Android 等见 [原仓库 README](http
 
 ## Docker 部署
 
-[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/wcjiang/linux-command?logo=docker)](https://hub.docker.com/r/wcjiang/linux-command) [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/wcjiang/linux-command?logo=docker)](https://hub.docker.com/r/wcjiang/linux-command) [![Docker Pulls](https://img.shields.io/docker/pulls/wcjiang/linux-command?logo=docker)](https://hub.docker.com/r/wcjiang/linux-command)
+[![Container Image](https://img.shields.io/badge/ghcr.io-jaywcjlove/linux--command-blue?logo=docker)](https://ghcr.io/jaywcjlove/linux-command)
 
-通过 Docker 部署 linux-command 网站：
+通过 Docker 部署 linux-command 网站（GHCR）：
 
 ```bash
-docker pull wcjiang/linux-command
+docker pull ghcr.io/jaywcjlove/linux-command:latest
 ```
 
 ```bash
-docker run --name linux-command --rm -d -p 9665:3000 wcjiang/linux-command:latest
+docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/jaywcjlove/linux-command:latest
 # Or
-docker run --name linux-command -itd -p 9665:3000 wcjiang/linux-command:latest
+docker run --name linux-command -itd -p 9665:3000 ghcr.io/jaywcjlove/linux-command:latest
 ```
 
 在浏览器中访问：

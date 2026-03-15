@@ -90,20 +90,15 @@ jobs:
                       https://raw.githack.com/jaywcjlove/linux-command/${{ steps.changelog.outputs.gh-pages-short-hash }}/index.html
 
 
-                      ## Docker
+                      ## Docker (GHCR)
 
-                      [![Docker Image Version (latest by date)](https://img.shields.io/docker/v/wcjiang/linux-command)](https://hub.docker.com/r/wcjiang/linux-command) [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/wcjiang/linux-command)](https://hub.docker.com/r/wcjiang/linux-command) [![Docker Pulls](https://img.shields.io/docker/pulls/wcjiang/linux-command)](https://hub.docker.com/r/wcjiang/linux-command)
-
-                      轻松通过 `docker` 部署 `linux-command` 网站。
+                      轻松通过 `docker` 部署 `linux-command` 网站：
 
                       ```bash
-                      docker pull wcjiang/linux-command
-                      ```
-
-                      ```bash
-                      docker run --name linux-command --rm -d -p 9665:3000 wcjiang/linux-command:latest
+                      docker pull ghcr.io/${{ github.repository_owner }}/linux-command:latest
+                      docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/${{ github.repository_owner }}/linux-command:latest
                       # Or
-                      docker run --name linux-command -itd -p 9665:3000 wcjiang/linux-command:latest
+                      docker run --name linux-command -itd -p 9665:3000 ghcr.io/${{ github.repository_owner }}/linux-command:latest
                       ```
 
                       在浏览器中访问以下 URL
