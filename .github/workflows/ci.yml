@@ -22,30 +22,10 @@ jobs:
                   node-version: 24
                   registry-url: 'https://registry.npmjs.org'
 
-            - name: Generate Contributors Images
-              uses: jaywcjlove/github-action-contributors@main
-              id: contributors
-              continue-on-error: true
-              with:
-                  filter-author: (renovate\[bot\]|renovate-bot|@github-actions-bot|dependabot\[bot\])
-                  avatarSize: 42
-
-            - name: Modify contributors.ejs
-              uses: jaywcjlove/github-action-modify-file-content@main
-              continue-on-error: true
-              with:
-                  path: template/contributors.ejs
-                  trim_whitespace: false
-                  openDelimiter: '<!--AUTO_GENERATED_PLEASE_DONT_DELETE_IT-->'
-                  closeDelimiter: '<!--AUTO_GENERATED_PLEASE_DONT_DELETE_IT-END-->'
-                  body: |
-                      ${{steps.contributors.outputs.htmlList}}
-
             - name: Build Linux Command
               run: |
                   npm install
                   npm run dash
-                  if [ -f CONTRIBUTORS.svg ]; then cp CONTRIBUTORS.svg .deploy; fi
 
             - name: Create Tag
               id: create_tag
@@ -171,65 +151,4 @@ jobs:
                   platforms: linux/amd64,linux/arm64
                   tags: ${{ secrets.DOCKER_USER }}/linux-command:${{steps.changelog.outputs.version}}
 
-            # # Create Docker Image in Github
-            # - name: Login to the GitHub Container Registry
-            #   uses: docker/login-action@v2
-            #   with:
-            #     registry: ghcr.io
-            #     username: ${{ github.actor }}
-            #     password: ${{ secrets.GITHUB_TOKEN }}
 
-            # - name: Build and push image:latest
-            #   uses: docker/build-push-action@v6
-            #   with:
-            #     push: true
-            #     context: .
-            #     platforms: linux/amd64,linux/arm64
-            #     tags: ghcr.io/jaywcjlove/linux-command:latest
-
-            # - name: Build and push image:tags
-            #   uses: docker/build-push-action@v6
-            #   if: steps.create_tag.outputs.successful
-            #   with:
-            #     push: true
-            #     context: .
-            #     platforms: linux/amd64,linux/arm64
-            #     tags: ghcr.io/jaywcjlove/linux-command:${{steps.changelog.outputs.version}}
-
-            # # Create Docker Image
-            # - name: Docker login
-            #   run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
-
-            # - name: Build linux-command image
-            #   run: |
-            #     rm -rf .deploy/linux-command.docset.tgz
-            #     docker image build -t linux-command .
-
-            # - name: Tags & Push image(latest)
-            #   run: |
-            #     docker tag linux-command ${{ secrets.DOCKER_USER }}/linux-command:latest
-            #     docker push ${{ secrets.DOCKER_USER }}/linux-command:latest
-
-            # - name: Tags & Push image
-            #   if: steps.create_tag.outputs.successful
-            #   run: |
-            #     echo "outputs.tag - ${{ steps.changelog.outputs.version }}"
-            #     docker tag linux-command ${{ secrets.DOCKER_USER }}/linux-command:${{steps.changelog.outputs.version}}
-            #     docker push ${{ secrets.DOCKER_USER }}/linux-command:${{steps.changelog.outputs.version}}
-
-            # # Create Docker Image in Github
-            # - name: Login to GitHub registry
-            #   run: echo ${{ github.token }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            # - name: Build docker image
-            #   run: docker build -t ghcr.io/jaywcjlove/linux-command:latest .
-
-            # - name: Publish to GitHub registry
-            #   run: docker push ghcr.io/jaywcjlove/linux-command:latest
-
-            # - name: Tag docker image (beta) and publish to GitHub registry
-            #   if: steps.create_tag.outputs.successful
-            #   run: |
-            #       echo "version: v${{ steps.changelog.outputs.version }}"
-            #       docker tag ghcr.io/jaywcjlove/linux-command:latest ghcr.io/jaywcjlove/linux-command:${{steps.changelog.outputs.version}}
-            #       docker push ghcr.io/jaywcjlove/linux-command:${{steps.changelog.outputs.version}}
