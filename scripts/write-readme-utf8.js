@@ -1,4 +1,7 @@
-> **Fork 自** [**jaywcjlove/linux-command**](https://github.com/jaywcjlove/linux-command)，感谢 [@jaywcjlove](https://github.com/jaywcjlove)。原仓库为 Linux 命令大全，采用 MIT 协议。Fork 仅作学习与备份，版权归原作者。
+const fs = require('fs');
+const path = require('path');
+
+const content = `> **Fork 自** [**jaywcjlove/linux-command**](https://github.com/jaywcjlove/linux-command)，感谢 [@jaywcjlove](https://github.com/jaywcjlove)。原仓库为 Linux 命令大全，采用 MIT 协议。Fork 仅作学习与备份，版权归原作者。
 
 <hr>
 
@@ -33,21 +36,21 @@ Chrome 插件、Alfred、Dash、Krunner、Android 等见 [原仓库 README](http
 
 通过 Docker 部署 linux-command 网站：
 
-```bash
+\`\`\`bash
 docker pull wcjiang/linux-command
-```
+\`\`\`
 
-```bash
+\`\`\`bash
 docker run --name linux-command --rm -d -p 9665:3000 wcjiang/linux-command:latest
 # Or
 docker run --name linux-command -itd -p 9665:3000 wcjiang/linux-command:latest
-```
+\`\`\`
 
 在浏览器中访问：
 
-```bash
+\`\`\`bash
 http://localhost:9665/
-```
+\`\`\`
 
 ## Vercel / Netlify
 
@@ -111,35 +114,35 @@ yes
 
 可通过 npm 安装 [linux-command](https://www.npmjs.com/package/linux-command)，包含所有命令的 markdown 与 [索引文件](dist/data.json)。
 
-```bash
+\`\`\`bash
 npm install linux-command
-```
+\`\`\`
 
-```js
+\`\`\`js
 var comm = require("linux-command");
 console.log("---->", comm.ls);
 
 var alias = require("linux-command/command/alias.md");
 console.log("---->", alias);
-```
+\`\`\`
 
 也可通过 CDN [UNPKG](https://unpkg.com/linux-command/) 获取。
 
-```shell
+\`\`\`shell
 # 命令索引 JSON
 https://unpkg.com/linux-command/dist/data.json
 # 对应命令详情（Markdown）
 https://unpkg.com/linux-command/command/<命令名称>.md
-```
+\`\`\`
 
 或通过 Github Raw 获取最新内容。
 
-```shell
+\`\`\`shell
 # 命令索引 JSON
 https://raw.githubusercontent.com/jaywcjlove/linux-command/master/dist/data.json
 # 对应命令详情（Markdown）
 https://raw.githubusercontent.com/jaywcjlove/linux-command/master/command/<命令名称>.md
-```
+\`\`\`
 
 ## Linux 学习资源
 
@@ -174,3 +177,8 @@ https://raw.githubusercontent.com/jaywcjlove/linux-command/master/command/<命�
 ## License
 
 Licensed under the MIT License.
+`;
+
+const outPath = path.join(process.cwd(), 'README.md');
+fs.writeFileSync(outPath, content, { encoding: 'utf8' });
+console.log('README.md written as UTF-8 to', outPath);
