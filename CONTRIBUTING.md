@@ -1,5 +1,7 @@
 # 贡献者约定
 
+本仓库为 [jaywcjlove/linux-command](https://github.com/jaywcjlove/linux-command) 的 Fork。新增命令或文档建议优先提交至原仓库，以便惠及更多用户。
+
 感谢您对本项目提交贡献，为了便于维护者管理，请各位维护人员遵循以下约定
 
 ## 如果您希望提交一个命令

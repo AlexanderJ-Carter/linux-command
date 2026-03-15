@@ -164,6 +164,11 @@
     "p": "/bc",
     "d": "算术操作精密运算工具"
   },
+  "beep": {
+    "n": "beep",
+    "p": "/beep",
+    "d": "用于控制 PC 扬声器发出蜂鸣声的命令行工具。"
+  },
   "bg": {
     "n": "bg",
     "p": "/bg",
@@ -859,11 +864,6 @@
     "p": "/gdb",
     "d": "功能强大的程序调试器"
   },
-  "get_module": {
-    "n": "get_module",
-    "p": "/get_module",
-    "d": "获取Linux内核模块的详细信息"
-  },
   "getcap": {
     "n": "getcap",
     "p": "/getcap",
@@ -888,6 +888,11 @@
     "n": "getsebool",
     "p": "/getsebool",
     "d": "查询SElinux策略内各项规则的布尔值"
+  },
+  "get_module": {
+    "n": "get_module",
+    "p": "/get_module",
+    "d": "获取Linux内核模块的详细信息"
   },
   "git": {
     "n": "git",
@@ -1444,15 +1449,15 @@
     "p": "/lsattr",
     "d": "查看文件的第二扩展文件系统属性"
   },
-  "lsb_release": {
-    "n": "lsb_release",
-    "p": "/lsb_release",
-    "d": "显示发行版本信息"
-  },
   "lsblk": {
     "n": "lsblk",
     "p": "/lsblk",
     "d": "列出块设备信息"
+  },
+  "lsb_release": {
+    "n": "lsb_release",
+    "p": "/lsb_release",
+    "d": "显示发行版本信息"
   },
   "lscpu": {
     "n": "lscpu",

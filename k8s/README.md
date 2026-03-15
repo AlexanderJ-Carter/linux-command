@@ -1,6 +1,6 @@
 # 快速入门指南
 
-本指南旨在帮助您在 Kubernetes 中部署基于 `wcjiang/linux-command` 镜像的 `linux-command` 应用。该应用提供了一套 `Deployment`，并通过 `Service` 对外暴露服务端口。
+本指南的部署方式与所用镜像（`wcjiang/linux-command`）来自原仓库 [jaywcjlove/linux-command](https://github.com/jaywcjlove/linux-command)。旨在帮助您在 Kubernetes 中部署基于该镜像的 `linux-command` 应用。该应用提供了一套 `Deployment`，并通过 `Service` 对外暴露服务端口。
 
 ## 前提条件
 
