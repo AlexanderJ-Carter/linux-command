@@ -6,6 +6,7 @@ on:
     pull_request:
         branches:
             - '**'
+    workflow_dispatch:
 
 jobs:
     build-deploy:
@@ -20,7 +21,7 @@ jobs:
             cancel-in-progress: false
         env:
             IMAGE_NAME: linux-command
-            IS_RELEASE: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') }}
+            IS_RELEASE: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')) || github.event_name == 'workflow_dispatch' }}
         steps:
             - uses: actions/checkout@v6
             - uses: actions/setup-node@v6
@@ -33,6 +34,9 @@ jobs:
                   npm install
                   npm run dash
 
+            - name: Set release env
+              run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+
             - name: Create Tag
               if: env.IS_RELEASE == 'true'
               id: create_tag
@@ -40,12 +44,6 @@ jobs:
               continue-on-error: true
               with:
                   package-path: ./package.json
-
-            - name: Get Tag Version
-              if: env.IS_RELEASE == 'true'
-              id: tag_version
-              uses: jaywcjlove/changelog-generator@main
-              continue-on-error: true
 
             - name: Update Dash Feed
               if: env.IS_RELEASE == 'true'
@@ -95,10 +93,10 @@ jobs:
                       轻松通过 `docker` 部署 `linux-command` 网站：
 
                       ```bash
-                      docker pull ghcr.io/${{ github.repository_owner }}/linux-command:latest
-                      docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/${{ github.repository_owner }}/linux-command:latest
+                      docker pull ghcr.io/${{ env.OWNER }}/linux-command:latest
+                      docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/${{ env.OWNER }}/linux-command:latest
                       # Or
-                      docker run --name linux-command -itd -p 9665:3000 ghcr.io/${{ github.repository_owner }}/linux-command:latest
+                      docker run --name linux-command -itd -p 9665:3000 ghcr.io/${{ env.OWNER }}/linux-command:latest
                       ```
 
                       在浏览器中访问以下 URL
@@ -134,7 +132,6 @@ jobs:
 
             # Docker 构建并推送（仅推送到 GHCR）
             - name: Set up Docker Buildx
-              if: env.IS_RELEASE == 'true'
               uses: docker/setup-buildx-action@v3
             - name: Login to GitHub Container Registry
               if: env.IS_RELEASE == 'true'
@@ -144,23 +141,21 @@ jobs:
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Prepare image tags
-              if: env.IS_RELEASE == 'true'
-              id: image_tags
-              run: |
-                  tags="ghcr.io/${{ github.repository_owner }}/${IMAGE_NAME}:latest"
-                  if [ "${{ steps.create_tag.outputs.successful }}" = "true" ] && [ -n "${{ steps.changelog.outputs.version }}" ]; then
-                    version="${{ steps.changelog.outputs.version }}"
-                    tags="$tags,ghcr.io/${{ github.repository_owner }}/${IMAGE_NAME}:${version}"
-                  fi
-                  echo "tags=$tags" >> "$GITHUB_OUTPUT"
+            - name: Build and push image:latest
+              uses: docker/build-push-action@v6
+              continue-on-error: true
+              with:
+                  push: ${{ env.IS_RELEASE == 'true' }}
+                  context: .
+                  platforms: linux/amd64,linux/arm64
+                  tags: ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest
 
-            - name: Build and push container images
-              if: env.IS_RELEASE == 'true'
+            - name: Build and push image:tags
+              if: env.IS_RELEASE == 'true' && steps.create_tag.outputs.successful == 'true'
               uses: docker/build-push-action@v6
               continue-on-error: true
               with:
                   push: true
                   context: .
                   platforms: linux/amd64,linux/arm64
-                  tags: ${{ steps.image_tags.outputs.tags }}
+                  tags: ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ steps.changelog.outputs.version }}
