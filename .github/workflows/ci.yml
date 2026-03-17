@@ -148,10 +148,11 @@ jobs:
               if: env.IS_RELEASE == 'true'
               id: image_tags
               run: |
-                  tags="ghcr.io/${{ github.repository_owner }}/${IMAGE_NAME}:latest"
+                  owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+                  tags="ghcr.io/${owner}/${IMAGE_NAME}:latest"
                   if [ "${{ steps.create_tag.outputs.successful }}" = "true" ] && [ -n "${{ steps.changelog.outputs.version }}" ]; then
                     version="${{ steps.changelog.outputs.version }}"
-                    tags="$tags,ghcr.io/${{ github.repository_owner }}/${IMAGE_NAME}:${version}"
+                    tags="$tags,ghcr.io/${owner}/${IMAGE_NAME}:${version}"
                   fi
                   echo "tags=$tags" >> "$GITHUB_OUTPUT"
 
