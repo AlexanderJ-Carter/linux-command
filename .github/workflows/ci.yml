@@ -6,6 +6,7 @@ on:
     pull_request:
         branches:
             - '**'
+    workflow_dispatch:
 
 jobs:
     build-deploy:
@@ -20,7 +21,7 @@ jobs:
             cancel-in-progress: false
         env:
             IMAGE_NAME: linux-command
-            IS_RELEASE: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') }}
+            IS_RELEASE: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')) || github.event_name == 'workflow_dispatch' }}
         steps:
             - uses: actions/checkout@v6
             - uses: actions/setup-node@v6
