@@ -33,9 +33,9 @@ jobs:
                   npm install
                   npm run dash
 
-            - name: Compute lowercase owner
-              id: lowercase_owner
-              run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+            - name: Set release env
+              if: env.IS_RELEASE == 'true'
+              run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
 
             - name: Create Tag
               if: env.IS_RELEASE == 'true'
@@ -93,10 +93,10 @@ jobs:
                       轻松通过 `docker` 部署 `linux-command` 网站：
 
                       ```bash
-                      docker pull ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/linux-command:latest
-                      docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/linux-command:latest
+                      docker pull ghcr.io/${{ env.OWNER }}/linux-command:latest
+                      docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/${{ env.OWNER }}/linux-command:latest
                       # Or
-                      docker run --name linux-command -itd -p 9665:3000 ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/linux-command:latest
+                      docker run --name linux-command -itd -p 9665:3000 ghcr.io/${{ env.OWNER }}/linux-command:latest
                       ```
 
                       在浏览器中访问以下 URL
@@ -142,19 +142,7 @@ jobs:
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Prepare image tags
-              if: env.IS_RELEASE == 'true'
-              id: image_tags
-              run: |
-                  owner="${{ steps.lowercase_owner.outputs.owner }}"
-                  tags="ghcr.io/${owner}/${IMAGE_NAME}:latest"
-                  if [ "${{ steps.create_tag.outputs.successful }}" = "true" ] && [ -n "${{ steps.changelog.outputs.version }}" ]; then
-                    version="${{ steps.changelog.outputs.version }}"
-                    tags="$tags,ghcr.io/${owner}/${IMAGE_NAME}:${version}"
-                  fi
-                  echo "tags=$tags" >> "$GITHUB_OUTPUT"
-
-            - name: Build and push container images
+            - name: Build and push image:latest
               if: env.IS_RELEASE == 'true'
               uses: docker/build-push-action@v6
               continue-on-error: true
@@ -162,4 +150,14 @@ jobs:
                   push: true
                   context: .
                   platforms: linux/amd64,linux/arm64
-                  tags: ${{ steps.image_tags.outputs.tags }}
+                  tags: ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest
+
+            - name: Build and push image:tags
+              if: env.IS_RELEASE == 'true' && steps.create_tag.outputs.successful == 'true'
+              uses: docker/build-push-action@v6
+              continue-on-error: true
+              with:
+                  push: true
+                  context: .
+                  platforms: linux/amd64,linux/arm64
+                  tags: ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ steps.changelog.outputs.version }}
