@@ -33,6 +33,10 @@ jobs:
                   npm install
                   npm run dash
 
+            - name: Compute lowercase owner
+              id: lowercase_owner
+              run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
             - name: Create Tag
               if: env.IS_RELEASE == 'true'
               id: create_tag
@@ -40,12 +44,6 @@ jobs:
               continue-on-error: true
               with:
                   package-path: ./package.json
-
-            - name: Get Tag Version
-              if: env.IS_RELEASE == 'true'
-              id: tag_version
-              uses: jaywcjlove/changelog-generator@main
-              continue-on-error: true
 
             - name: Update Dash Feed
               if: env.IS_RELEASE == 'true'
@@ -95,10 +93,10 @@ jobs:
                       轻松通过 `docker` 部署 `linux-command` 网站：
 
                       ```bash
-                      docker pull ghcr.io/${{ github.repository_owner }}/linux-command:latest
-                      docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/${{ github.repository_owner }}/linux-command:latest
+                      docker pull ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/linux-command:latest
+                      docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/linux-command:latest
                       # Or
-                      docker run --name linux-command -itd -p 9665:3000 ghcr.io/${{ github.repository_owner }}/linux-command:latest
+                      docker run --name linux-command -itd -p 9665:3000 ghcr.io/${{ steps.lowercase_owner.outputs.owner }}/linux-command:latest
                       ```
 
                       在浏览器中访问以下 URL
@@ -148,7 +146,7 @@ jobs:
               if: env.IS_RELEASE == 'true'
               id: image_tags
               run: |
-                  owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+                  owner="${{ steps.lowercase_owner.outputs.owner }}"
                   tags="ghcr.io/${owner}/${IMAGE_NAME}:latest"
                   if [ "${{ steps.create_tag.outputs.successful }}" = "true" ] && [ -n "${{ steps.changelog.outputs.version }}" ]; then
                     version="${{ steps.changelog.outputs.version }}"
