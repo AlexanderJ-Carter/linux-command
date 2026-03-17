@@ -35,7 +35,6 @@ jobs:
                   npm run dash
 
             - name: Set release env
-              if: env.IS_RELEASE == 'true'
               run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
 
             - name: Create Tag
@@ -133,7 +132,6 @@ jobs:
 
             # Docker 构建并推送（仅推送到 GHCR）
             - name: Set up Docker Buildx
-              if: env.IS_RELEASE == 'true'
               uses: docker/setup-buildx-action@v3
             - name: Login to GitHub Container Registry
               if: env.IS_RELEASE == 'true'
@@ -144,11 +142,10 @@ jobs:
                   password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Build and push image:latest
-              if: env.IS_RELEASE == 'true'
               uses: docker/build-push-action@v6
               continue-on-error: true
               with:
-                  push: true
+                  push: ${{ env.IS_RELEASE == 'true' }}
                   context: .
                   platforms: linux/amd64,linux/arm64
                   tags: ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest
