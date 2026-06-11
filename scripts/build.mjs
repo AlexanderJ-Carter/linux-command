@@ -19,7 +19,14 @@ const dataJsonMinPath = path.resolve(process.cwd(), 'dist', 'data.min.json');
 const cssPath = path.resolve(deployDir, 'css', 'index.css');
 const contributorsPath = path.resolve(process.cwd(), 'CONTRIBUTORS.svg');
 
-(async () => {
+function sanitizeCommandName(value) {
+    return String(value || '')
+        .replace(/^\uFEFF/, '')
+        .replace(/[\u200B-\u200D\u2060]/g, '')
+        .trim();
+}
+
+;(async () => {
     try {
         await FS.ensureDir(deployDir);
         await FS.emptyDir(deployDir);
@@ -185,6 +192,7 @@ function createDataJSON(pathArr) {
                 let title = str.match(/[^===]+(?=[===])/g);
                 title = title[0] ? title[0].replace(/\n/g, '') : title[0];
                 title = title.replace(/\r/, '');
+                title = sanitizeCommandName(title);
                 // 命令名称
                 json['n'] = title;
                 // 命令路径
@@ -227,8 +235,11 @@ function createTmpToHTML(fromPath, toPath, desJson, mdPath) {
                 // CSS/JS 引用相对地址
                 relative_path = '../';
                 mdPathName = `/command/${desJson.n}.md`;
+                const mdFileName = desJson.p
+                    ? String(desJson.p).replace(/^\//, '')
+                    : sanitizeCommandName(desJson.n);
                 const READMESTR = await FS.readFile(
-                    path.resolve(mdPath, `${desJson.n}.md`),
+                    path.resolve(mdPath, `${mdFileName}.md`),
                 );
                 mdhtml = await markdownToHTML(READMESTR.toString());
             }

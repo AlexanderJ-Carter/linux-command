@@ -33,6 +33,9 @@ rpm(选项)(参数)
 -U<套件档>或--upgrade<套件档>：升级指定的套件档；
 -v：显示指令执行过程；
 -vv：详细显示指令执行过程，便于排错。
+-K：检查套件签名和校验和，可用于验证RPM包；
+-F<套件档>+或--freshen<套件档>+：升级指定的套件档，仅当系统中已安装旧版时才会更新；
+-V：验证套件或文件的完整性；
 ```
 
 ### 参数
@@ -227,6 +230,7 @@ mysql57-community-release-el6-8.noarch.rpm # 一个 rpm 包的例子
 
 rpm -Uivh --dodeps xxx # upgrade install verbose hash
 rpm -qilpfa|grep xxx # query info list(rpm包安装后的文件位置) package(rpm 包) file(文件属于哪个rpm文件) all
+rpm -K *.rpm # 检查 RPM 包的签名和校验和
 rpm -e # erase
 rpm -V # verify
 rpm2cpio | cpio -idv
@@ -234,7 +238,7 @@ rpm2cpio | cpio -idv
 # rpm 默认安装位置
 /etc/           配置文件
 /usr/bin/       可执行文件
-/urs/lib/       程序使用的函数库
+/usr/lib/       程序使用的函数库
 /usr/share/doc/ 使用手册
 /usr/share/man/ manual
 ```
