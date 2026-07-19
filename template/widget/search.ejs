@@ -22,11 +22,9 @@
       </a>
     </div>
     <div class="search">
-      <ul class="search-list" id="result">
-        <!-- <li><a href="#"><strong>find</strong> - 指定目录下查找文件。</a></li> -->
-      </ul>
-      <input type="text" class="query" id="query" autocomplete="off" autofocus="autofocus" placeholder="Linux 命令搜索"
-        aria-label="搜索 Linux 命令" />
+      <ul class="search-list" id="result" role="listbox" aria-label="搜索结果"></ul>
+      <input type="search" class="query" id="query" autocomplete="off"<% if(type=='home'){ %> autofocus="autofocus"<% } %> placeholder="搜索 Linux 命令 (Ctrl+K)"
+        aria-label="搜索 Linux 命令" aria-controls="result" aria-autocomplete="list" enterkeyhint="search" />
       <div class="enter-input">
         <input type="hidden" id="current_path" value="<%=current_path%>">
         <button id="search_btn" type="button" aria-label="执行搜索">搜索</button>

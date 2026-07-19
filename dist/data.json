@@ -29,6 +29,11 @@
     "p": "/alias",
     "d": "定义或显示别名。"
   },
+  "ansible": {
+    "n": "ansible",
+    "p": "/ansible",
+    "d": "自动化运维和配置管理工具"
+  },
   "apachectl": {
     "n": "apachectl",
     "p": "/apachectl",
@@ -789,6 +794,11 @@
     "p": "/firewall-cmd",
     "d": "Linux上新用的防火墙软件，跟iptables差不多的工具"
   },
+  "firewalld": {
+    "n": "firewalld",
+    "p": "/firewalld",
+    "d": "动态防火墙管理器"
+  },
   "fishshell": {
     "n": "fishshell",
     "p": "/fishshell",
@@ -849,8 +859,8 @@
     "p": "/fuser",
     "d": "使用文件或文件结构识别进程"
   },
-  "gcc": {
-    "n": "gcc",
+  "pullgcc": {
+    "n": "pullgcc",
     "p": "/gcc",
     "d": "基于C/C++的编译器"
   },
@@ -1008,6 +1018,11 @@
     "n": "head",
     "p": "/head",
     "d": "显示文件的开头部分。"
+  },
+  "helm": {
+    "n": "helm",
+    "p": "/helm",
+    "d": "Kubernetes包管理器"
   },
   "help": {
     "n": "help",
@@ -1278,6 +1293,11 @@
     "n": "killall",
     "p": "/killall",
     "d": "使用进程的名称来杀死一组进程"
+  },
+  "kubectl": {
+    "n": "kubectl",
+    "p": "/kubectl",
+    "d": "Kubernetes集群管理工具"
   },
   "l2ping": {
     "n": "l2ping",
@@ -2582,7 +2602,7 @@
   "systemctl": {
     "n": "systemctl",
     "p": "/systemctl",
-    "d": "系统服务管理器指令"
+    "d": "Systemd服务管理器"
   },
   "systool": {
     "n": "systool",

@@ -19,13 +19,13 @@ mq-mobile = "screen and (max-width: 479px)"
   }
   a {
     text-decoration none
-    background #2196F3
+    background var(--accent)
     color #fff
-    border-radius 3px
-    padding 2px 5px
+    border-radius var(--radius-sm, 3px)
+    padding 4px 10px
+    font-size 13px
     &:hover {
-      color #333
-      background #e6e6e6
+      filter brightness(1.08)
     }
   }
 }
@@ -37,11 +37,11 @@ mq-mobile = "screen and (max-width: 479px)"
 }
 
 .markdown-body {
-  margin: 0 auto 0 auto;
+  margin: 0;
   margin-top: 0 !important;
-  padding 90px 35px 30px 35px
-  max-width 980px
+  padding 8px 0 30px 0
+  max-width none
   @media mq-mobile {
-    padding: 70px 15px 30px 15px;
+    padding: 8px 0 30px 0;
   }
 }

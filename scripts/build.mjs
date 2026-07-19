@@ -5,6 +5,46 @@ import * as ejs from 'ejs';
 import UglifyJS from 'uglify-js';
 import { create } from 'markdown-to-html-cli';
 import _ from 'colors-cli/toxic';
+import { createRequire } from 'module';
+import {
+    buildCategoryGroups,
+    buildRelatedMap,
+} from './categories.mjs';
+
+const require = createRequire(import.meta.url);
+const { version: packageVersion } = require('../package.json');
+const buildVersion = packageVersion;
+
+const POPULAR_COMMAND_NAMES = [
+    'ls',
+    'cd',
+    'grep',
+    'find',
+    'chmod',
+    'tar',
+    'ssh',
+    'docker',
+    'kubectl',
+    'git',
+    'vi',
+    'curl',
+    'awk',
+];
+
+function pickPopularCommands(commands) {
+    return POPULAR_COMMAND_NAMES.map((name) =>
+        commands.find((item) => item.n === name),
+    ).filter(Boolean);
+}
+
+function stripInjectedDarkMode(html) {
+    return String(html)
+        .replace(/<dark-mode\b[^>]*>[\s\S]*?<\/dark-mode>/gi, '')
+        .replace(
+            /<script>const t=document;const e="_dark_mode_theme_"[\s\S]*?customElements\.define\("dark-mode",a\);<\/script>/g,
+            '',
+        );
+}
 
 const deployDir = path.resolve(process.cwd(), '.deploy');
 const templateImgDir = path.resolve(process.cwd(), 'template', 'img');
@@ -88,9 +128,9 @@ function sanitizeCommandName(value) {
             path.resolve(deployDir, 'index.html'),
             {
                 p: '/index.html',
-                n: 'Linux命令搜索引擎',
-                d: '最专业的Linux命令大全，内容包含Linux命令手册、详解、学习，值得收藏的Linux命令速查手册。',
+                is_home: true,
                 command_length: jsonData.data.length,
+                popular_commands: pickPopularCommands(jsonData.data),
             },
         );
 
@@ -99,8 +139,9 @@ function sanitizeCommandName(value) {
             path.resolve(deployDir, 'list.html'),
             {
                 p: '/list.html',
-                n: '搜索',
-                d: '最专业的Linux命令大全，命令搜索引擎，内容包含Linux命令手册、详解、学习，值得收藏的Linux命令速查手册。',
+                is_list_page: true,
+                page_title: '搜索结果',
+                page_desc: '按名称或说明搜索 Linux 命令',
                 command_length: jsonData.data.length,
             },
         );
@@ -110,9 +151,25 @@ function sanitizeCommandName(value) {
             path.resolve(deployDir, 'hot.html'),
             {
                 p: '/hot.html',
-                n: '搜索',
-                d: '最专业的Linux命令大全，命令搜索引擎，内容包含Linux命令手册、详解、学习，值得收藏的Linux命令速查手册。',
+                is_list_page: true,
+                page_title: '命令列表',
+                page_desc: '全部 Linux 命令，按字母排序浏览',
                 arr: jsonData.data,
+                command_length: jsonData.data.length,
+            },
+        );
+
+        const categories = buildCategoryGroups(jsonData.data);
+        const relatedMap = buildRelatedMap(jsonData.data);
+        await createTmpToHTML(
+            path.resolve(process.cwd(), 'template', 'category.ejs'),
+            path.resolve(deployDir, 'category.html'),
+            {
+                p: '/category.html',
+                is_list_page: true,
+                page_title: '分类浏览',
+                page_desc: '按用途浏览 Linux 命令',
+                categories,
                 command_length: jsonData.data.length,
             },
         );
@@ -127,8 +184,9 @@ function sanitizeCommandName(value) {
             path.resolve(deployDir, 'contributors.html'),
             {
                 p: '/contributors.html',
-                n: '搜索',
-                d: '最专业的Linux命令大全，命令搜索引擎，内容包含Linux命令手册、详解、学习，值得收藏的Linux命令速查手册。',
+                is_list_page: true,
+                page_title: '贡献者',
+                page_desc: '感谢所有为 linux-command 做出贡献的开发者',
                 arr: jsonData.data,
                 command_length: jsonData.data.length,
                 contributors: svgStr,
@@ -136,8 +194,9 @@ function sanitizeCommandName(value) {
         );
 
         await Promise.all(
-            jsonData.data.map(async (item, idx) => {
+            jsonData.data.map(async (item) => {
                 item.command_length = jsonData.data.length;
+                item.related = relatedMap.get(item.n) || [];
                 await createTmpToHTML(
                     path.resolve(process.cwd(), 'template', 'details.ejs'),
                     path.resolve(deployDir, 'c', `${item.n}.html`),
@@ -226,7 +285,10 @@ function createDataJSON(pathArr) {
 function createTmpToHTML(fromPath, toPath, desJson, mdPath) {
     return new Promise(async (resolve, reject) => {
         try {
-            const current_path = toPath.replace(new RegExp(`${deployDir}`), '');
+            const current_path = path
+                .relative(deployDir, toPath)
+                .split(path.sep)
+                .join('/');
             const tmpStr = await FS.readFile(fromPath);
             let mdPathName = '';
             let mdhtml = '';
@@ -234,10 +296,10 @@ function createTmpToHTML(fromPath, toPath, desJson, mdPath) {
             if (mdPath) {
                 // CSS/JS 引用相对地址
                 relative_path = '../';
-                mdPathName = `/command/${desJson.n}.md`;
                 const mdFileName = desJson.p
                     ? String(desJson.p).replace(/^\//, '')
                     : sanitizeCommandName(desJson.n);
+                mdPathName = `/command/${mdFileName}.md`;
                 const READMESTR = await FS.readFile(
                     path.resolve(mdPath, `${mdFileName}.md`),
                 );
@@ -253,6 +315,7 @@ function createTmpToHTML(fromPath, toPath, desJson, mdPath) {
                     mdhtml: mdhtml || '',
                     current_path, // 当前 html 路径
                     describe: desJson ? desJson : {}, // 当前 md 的描述
+                    build_version: buildVersion,
                 },
                 {
                     filename: fromPath,
@@ -271,7 +334,7 @@ function createTmpToHTML(fromPath, toPath, desJson, mdPath) {
 }
 
 function markdownToHTML(str) {
-    return create({
+    const html = create({
         rewrite: (node) => {
             if (
                 node.type === 'element' &&
@@ -288,8 +351,10 @@ function markdownToHTML(str) {
         },
         markdown: str,
         document: undefined,
+        corners: false,
         'dark-mode': false,
     });
+    return stripInjectedDarkMode(html);
 }
 
 /**

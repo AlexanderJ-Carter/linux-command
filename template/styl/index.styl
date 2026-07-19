@@ -2,19 +2,62 @@
 @import('mixins/markdown.styl')
 
 mq-mobile = "screen and (max-width: 479px)"
+mq-tablet = "screen and (max-width: 768px)"
+
+:root
+  --accent #2d6a4f
+  --accent-soft rgba(45, 106, 79, 0.12)
+  --text-muted #666
+  --radius-sm 6px
+  --radius-md 10px
+  --shadow-sm 0 2px 8px rgba(0, 0, 0, 0.08)
+  --shadow-md 0 8px 24px rgba(0, 0, 0, 0.12)
+
+@media (prefers-reduced-motion: reduce)
+  *
+    animation-duration 0.01ms !important
+    transition-duration 0.01ms !important
 
 [data-color-mode*='dark'], [data-color-mode*='dark'] body {
   color-scheme: dark;
-  --color-header-bg: #3a3a3a8f;
-  --color-header-border: #323232;
-  --color-hover: #ffffff30;
+  --color-header-bg: rgba(30, 30, 30, 0.85);
+  --color-header-border: #3a3a3a;
+  --color-hover: rgba(255, 255, 255, 0.08);
+  --text-muted: #aaa;
+  --accent-soft: rgba(82, 183, 136, 0.15);
+  --accent: #52b788;
 }
+
 [data-color-mode*='light'], [data-color-mode*='light'] body {
   color-scheme: light;
-  --color-header-bg: #ffffff52;
-  --color-header-border: #d3d3d3;
-  --color-hover: #f2f2f2;
+  --color-header-bg: rgba(255, 255, 255, 0.85);
+  --color-header-border: #e5e5e5;
+  --color-hover: #f5f5f5;
 }
+
+body
+  font-size 14px
+  line-height 1.6
+  color var(--color-theme-text, inherit)
+
+.theme-toggle
+  position fixed
+  left 10px
+  top 8px
+  z-index 999
+
+[data-color-mode*='dark'] .header .search #result .ok
+  background var(--color-hover)
+
+.query:focus-visible,
+.enter-input button:focus-visible,
+.search-list a:focus-visible,
+.cmd-chip:focus-visible,
+.cmd-card:focus-visible,
+.alpha-nav__link:focus-visible,
+.back-to-top:focus-visible
+  outline 2px solid var(--accent)
+  outline-offset 2px
 
 .wrapper {
   min-height: 100vh;
@@ -47,36 +90,41 @@ mq-mobile = "screen and (max-width: 479px)"
     }
     #result {
       .ok {
-        background:#f4f4f4;
+        background var(--color-hover)
       }
     }
     .search-list {
       position absolute
       display none
       z-index 999
-      box-shadow 1px 1px 3px var(--color-theme-bg)
+      box-shadow var(--shadow-md)
       border 1px solid var(--color-header-border)
       background var(--color-theme-bg)
       min-width 100px
-      top 39px
+      top 44px
       width 100%
-      padding 5px
-      border-radius 5px 5px 5px 5px
+      padding 6px
+      border-radius var(--radius-md)
+      max-height 320px
+      overflow-y auto
       li {
         line-height 23px
+        border-radius var(--radius-sm)
         span{
           padding 0 8px
-          color #b9b9b9
+          color var(--text-muted)
         }
       }
       a {
         display block
-        padding 2px 6px 2px 6px
-        &:hover {
+        padding 8px 10px
+        border-radius var(--radius-sm)
+        color inherit
+        &:hover, &.ok {
           background-color var(--color-hover)
         }
         .kw {
-          color #f00
+          color var(--accent)
           font-style inherit
           font-weight bold
         }
@@ -91,21 +139,21 @@ mq-mobile = "screen and (max-width: 479px)"
       position relative
       z-index 2
       width 100%
-      height 40px
-      padding 6px 12px
-      font-size 14px
-      font-weight bold
+      height 42px
+      padding 8px 14px
+      font-size 15px
+      font-weight 500
       line-height 1.42857143
       background-color: transparent;
       background-image none
       border 1px solid $border-color
-      border-radius 5px 0 0 5px
+      border-radius var(--radius-md) 0 0 var(--radius-md)
       -webkit-appearance: none;
       &:focus {
         z-index 99
-        border-color #66afe9
+        border-color var(--accent)
         outline 0
-        box-shadow inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(102,175,233,0.6)
+        box-shadow 0 0 0 3px var(--accent-soft)
       }
     }
     .enter-input {
@@ -116,44 +164,23 @@ mq-mobile = "screen and (max-width: 479px)"
         position relative
         z-index 5
         display inline-block
-        padding 9px 23px
+        padding 10px 24px
         font-size 14px
-        font-weight bold
+        font-weight 600
         line-height 1.42857143
         text-align center
-        text-rendering auto
-        white-space nowrap
-        vertical-align middle
-        touch-action manipulation
+        background-color var(--accent)
+        color #fff
+        border 1px solid var(--accent)
+        border-radius 0 var(--radius-md) var(--radius-md) 0
         cursor pointer
         user-select none
-        background-image none
-        border 1px solid transparent
-        border-collapse separate
-        border-radius 0 5px 5px 0
-        border-color $border-color
-        &:focus,&:active:focus {
-          outline thin dotted
-          outline 5px auto -webkit-focus-ring-color
-          outline-offset -2px
+        transition background-color 0.15s ease, border-color 0.15s ease
+        &:hover {
+          filter brightness(1.05)
         }
         &:active {
-          color #333
-          background-color #e6e6e6
-          border-color #b4b4b4
-          background-image none
-          box-shadow inset 0 8px 32px -8px rgba(0,0,0,0.3)
-        }
-        &:focus {
-          color #333
-          background-color #e6e6e6
-          border-color #999
-          text-decoration none
-        }
-        &:hover {
-          color #333
-          background-color #e6e6e6
-          border-color #b4b4b4
+          filter brightness(0.95)
         }
       }
     }
@@ -173,12 +200,21 @@ mq-mobile = "screen and (max-width: 479px)"
   }
   .fork-credit {
     font-size 12px
-    color #888
-    margin-bottom 0.5rem
+    color var(--text-muted)
+    margin-bottom 0.75rem
   }
   .fork-credit a {
     color inherit
     text-decoration underline
+  }
+  .footer-nav {
+    margin 0.5rem 0
+    a {
+      color inherit
+      &:hover {
+        color var(--accent)
+      }
+    }
   }
   .footer-sep {
     margin 0 0.35em
@@ -187,10 +223,16 @@ mq-mobile = "screen and (max-width: 479px)"
   .footer-meta {
     margin-top 0.75rem
     font-size 12px
-    color #666
-  }
-  div {
-    font-size 12px
+    color var(--text-muted)
+    kbd {
+      display inline-block
+      padding 1px 5px
+      border 1px solid var(--color-header-border)
+      border-radius 4px
+      font-size 11px
+      font-family inherit
+      background var(--color-hover)
+    }
   }
 }
 .header.home {
@@ -200,13 +242,233 @@ mq-mobile = "screen and (max-width: 479px)"
     align-items center
   }
   .logo {
-    min-height 140px
+    min-height 120px
     display flex
     align-items center
   }
   .search {
     display flex
-    min-width 320px
+    min-width min(100%, 520px)
+    width 100%
+    max-width 520px
+  }
+}
+
+.home-hero {
+  text-align center
+  max-width 640px
+  margin 0 auto
+  padding 0 16px 24px
+  .home-tagline {
+    font-size 15px
+    color var(--text-muted)
+    margin 0 0 20px
+    strong {
+      color var(--accent)
+      font-size 18px
+    }
+  }
+  .home-links {
+    margin-top 16px
+    font-size 13px
+    a {
+      color var(--accent)
+      &:hover {
+        text-decoration underline
+      }
+    }
+  }
+}
+
+.cmd-chips {
+  display flex
+  flex-wrap wrap
+  gap 8px
+  justify-content center
+}
+
+.cmd-chip {
+  display inline-block
+  padding 6px 14px
+  border-radius 999px
+  background var(--accent-soft)
+  color var(--accent)
+  font-family ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+  font-size 13px
+  font-weight 600
+  border 1px solid transparent
+  transition transform 0.15s ease, border-color 0.15s ease
+  &:hover {
+    border-color var(--accent)
+    transform translateY(-1px)
+  }
+}
+
+.page-content {
+  padding 88px 20px 60px
+  max-width 920px
+  margin 0 auto
+}
+
+.page-header {
+  margin-bottom 24px
+  h1 {
+    font-size 24px
+    font-weight 700
+    margin 0 0 6px
+  }
+  p, .search-meta {
+    margin 0
+    color var(--text-muted)
+    font-size 14px
+  }
+}
+
+.alpha-nav {
+  display flex
+  flex-wrap wrap
+  gap 6px
+  margin-bottom 28px
+  padding 12px
+  border 1px solid var(--color-header-border)
+  border-radius var(--radius-md)
+  background var(--color-hover)
+  position sticky
+  top 72px
+  z-index 10
+}
+
+.alpha-nav__link {
+  display inline-flex
+  align-items center
+  justify-content center
+  min-width 28px
+  height 28px
+  padding 0 6px
+  border-radius var(--radius-sm)
+  font-size 12px
+  font-weight 600
+  color inherit
+  &:hover {
+    background var(--accent-soft)
+    color var(--accent)
+  }
+}
+
+.alpha-group {
+  margin-bottom 32px
+  scroll-margin-top 120px
+}
+
+.alpha-letter {
+  font-size 20px
+  font-weight 700
+  color var(--accent)
+  margin 0 0 12px
+  padding-bottom 8px
+  border-bottom 2px solid var(--accent-soft)
+}
+
+.cmd-grid {
+  list-style none
+  display grid
+  grid-template-columns repeat(auto-fill, minmax(260px, 1fr))
+  gap 10px
+  padding 0
+  margin 0
+}
+
+.cmd-card {
+  display flex
+  flex-direction column
+  gap 4px
+  padding 12px 14px
+  border 1px solid var(--color-header-border)
+  border-radius var(--radius-md)
+  background var(--color-theme-bg)
+  color inherit
+  min-height 72px
+  transition border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease
+  &:hover {
+    border-color var(--accent)
+    box-shadow var(--shadow-sm)
+    transform translateY(-1px)
+  }
+  &__name {
+    font-family ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+    font-weight 700
+    font-size 15px
+    color var(--accent)
+  }
+  &__desc {
+    font-size 12px
+    color var(--text-muted)
+    line-height 1.45
+    display -webkit-box
+    -webkit-line-clamp 2
+    -webkit-box-orient vertical
+    overflow hidden
+  }
+}
+
+.breadcrumb {
+  max-width 980px
+  margin 0 auto
+  padding 88px 35px 0
+  font-size 13px
+  color var(--text-muted)
+  a {
+    color var(--accent)
+    &:hover {
+      text-decoration underline
+    }
+  }
+  .breadcrumb-sep {
+    margin 0 0.4em
+    opacity 0.5
+  }
+}
+
+.cmd-page-header {
+  max-width 980px
+  margin 0 auto
+  padding 16px 35px 0
+}
+
+.cmd-page-title {
+  font-family ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
+  font-size 28px
+  font-weight 700
+  margin 0 0 8px
+  color var(--accent)
+}
+
+.cmd-page-desc {
+  margin 0
+  font-size 15px
+  color var(--text-muted)
+}
+
+.back-to-top {
+  position fixed
+  right 20px
+  bottom 24px
+  z-index 100
+  width 40px
+  height 40px
+  border none
+  border-radius 50%
+  background var(--accent)
+  color #fff
+  font-size 18px
+  cursor pointer
+  box-shadow var(--shadow-md)
+  transition opacity 0.2s ease, transform 0.2s ease
+  &:hover {
+    transform translateY(-2px)
+  }
+  &[hidden] {
+    display none
   }
 }
 
@@ -234,49 +496,50 @@ mq-mobile = "screen and (max-width: 479px)"
 }
 
 .search_list {
-  padding 79px 27px 
+  padding 0
+  #search_list_result {
+    list-style none
+    padding 0
+    margin 0
+  }
   a {
     font-size 16px
+    display block
+    padding 12px 14px
+    border 1px solid var(--color-header-border)
+    border-radius var(--radius-md)
+    margin-bottom 8px
+    color inherit
+    transition border-color 0.15s ease, background 0.15s ease
+    &:hover {
+      border-color var(--accent)
+      background var(--color-hover)
+    }
     strong {
-      font-weight bold
+      font-weight 700
+      color var(--accent)
+      font-family ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
     }
     .kw {
-      color #f00
+      color var(--accent)
       font-style inherit
       font-weight bold
     }
-    &:hover {
-      .kw {
-        color #333
-      }
-    }
   }
   li {
-    padding 10px 0 10px 0
+    padding 0
     list-style-type none
-    p {
-      padding-top 5px
-      color #4F4F4F
+    span {
+      display block
+      padding 24px
+      text-align center
+      color var(--text-muted)
     }
   }
 }
 
 .hotlist {
-  padding 79px 27px 
-  a {
-    font-size 16px
-    strong {
-      font-weight bold
-    }
-  }
-  li {
-    padding 5px 0 5px 0
-    list-style-type none
-    p{
-      padding-top 5px
-      color #4F4F4F
-    }
-  }
+  padding 0
 }
 
 .header_list .header_inner {
@@ -288,7 +551,7 @@ mq-mobile = "screen and (max-width: 479px)"
   }
 }
 
-.header_inner, .hotlist, .search_list, .contributors {
+.header_inner, .contributors {
   max-width 920px
   margin 0 auto
 }
@@ -316,12 +579,191 @@ mq-mobile = "screen and (max-width: 479px)"
   }
 }
 
+.alpha-group {
+  content-visibility auto
+  contain-intrinsic-size auto 480px
+}
+
+.category-nav {
+  display flex
+  flex-wrap wrap
+  gap 8px
+  margin 0 0 28px
+  &__link {
+    display inline-flex
+    align-items center
+    gap 6px
+    padding 6px 12px
+    border-radius 999px
+    background var(--accent-soft)
+    color var(--accent)
+    font-size 13px
+    span {
+      font-size 11px
+      opacity 0.7
+    }
+    &:hover {
+      background var(--accent)
+      color #fff
+    }
+  }
+}
+
+.category-group {
+  content-visibility auto
+  contain-intrinsic-size auto 420px
+  margin-bottom 36px
+}
+
+.category-title {
+  font-size 20px
+  margin 0 0 14px
+  padding-bottom 8px
+  border-bottom 1px solid var(--color-header-border)
+  small {
+    font-size 13px
+    color var(--text-muted)
+    font-weight 400
+    margin-left 8px
+  }
+}
+
+.search-tips {
+  display flex
+  flex-wrap wrap
+  gap 8px
+  margin-top 12px
+}
+
+.search-tip {
+  border 1px solid var(--color-header-border)
+  background transparent
+  color inherit
+  border-radius 999px
+  padding 4px 12px
+  font-size 13px
+  cursor pointer
+  &:hover {
+    border-color var(--accent)
+    color var(--accent)
+  }
+}
+
+.load-more-wrap {
+  text-align center
+  margin 20px 0 8px
+}
+
+.load-more-btn {
+  border 1px solid var(--accent)
+  background transparent
+  color var(--accent)
+  border-radius var(--radius-sm)
+  padding 10px 28px
+  font-size 14px
+  cursor pointer
+  &:hover {
+    background var(--accent)
+    color #fff
+  }
+  &[hidden] {
+    display none
+  }
+}
+
+.recent-commands {
+  margin-top 28px
+  &__title {
+    font-size 14px
+    font-weight 600
+    margin 0 0 10px
+    color var(--text-muted)
+  }
+}
+
+.cmd-layout {
+  max-width 1100px
+  margin 0 auto
+  padding 12px 35px 48px
+  display grid
+  grid-template-columns minmax(0, 1fr)
+  gap 24px
+}
+
+.cmd-toc {
+  order -1
+  &__title {
+    font-size 13px
+    font-weight 600
+    color var(--text-muted)
+    margin-bottom 8px
+  }
+  &__list {
+    list-style none
+    margin 0
+    padding 0
+    display flex
+    flex-wrap wrap
+    gap 6px 14px
+  }
+  &__item {
+    font-size 13px
+    a {
+      color var(--accent)
+      &:hover {
+        text-decoration underline
+      }
+    }
+    &--h3 {
+      opacity 0.85
+      &::before {
+        content '· '
+        opacity 0.5
+      }
+    }
+  }
+}
+
+.related-commands {
+  margin-top 40px
+  padding-top 24px
+  border-top 1px solid var(--color-header-border)
+  h2 {
+    font-size 18px
+    margin 0 0 12px
+  }
+}
+
+@media (min-width: 1100px) {
+  .cmd-layout {
+    grid-template-columns 200px minmax(0, 1fr)
+    align-items start
+  }
+  .cmd-toc {
+    order 0
+    position sticky
+    top 88px
+    &__list {
+      display block
+    }
+    &__item {
+      margin-bottom 6px
+      &--h3 {
+        padding-left 10px
+        &::before {
+          content none
+        }
+      }
+    }
+  }
+}
+
 @media mq-mobile {
   .header{
     width inherit
     .search .enter-input {
       button {
-        padding 9px 14px
+        padding 10px 16px
       }
     }
   }
@@ -341,7 +783,17 @@ mq-mobile = "screen and (max-width: 479px)"
       }
     }
   }
-  .search_list, .hotlist {
-    padding 78px 27px
+  .page-content {
+    padding 80px 16px 48px
+  }
+  .cmd-grid {
+    grid-template-columns 1fr
+  }
+  .breadcrumb, .cmd-page-header, .cmd-layout {
+    padding-left 16px
+    padding-right 16px
+  }
+  .alpha-nav {
+    top 64px
   }
 }
