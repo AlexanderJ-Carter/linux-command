@@ -1,0 +1,127 @@
+---
+import { withBase } from '../lib/paths';
+
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+---
+<header class:list={['site-header', { 'site-header--compact': compact }]}>
+  <div class="shell site-header__inner">
+    <a class="brand focus-ring" href={withBase('/')}>
+      <span class="brand__mark" aria-hidden="true">$</span>
+      <span class="brand__text">Linux Command</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a class="focus-ring" href={withBase('/hot')}>字母表</a>
+      <a class="focus-ring" href={withBase('/category')}>分类</a>
+      <a class="focus-ring" href={withBase('/list')}>搜索</a>
+      <button class="cmdk-trigger focus-ring" id="cmdk_open" type="button" aria-label="打开命令面板">
+        面板 <kbd>⌘K</kbd>
+      </button>
+      <button class="theme-toggle focus-ring" id="theme_toggle" type="button" aria-label="切换浅色/暗色">
+        主题
+      </button>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    gap: 1rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .brand__mark {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.95rem;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .site-nav a,
+  .theme-toggle,
+  .cmdk-trigger {
+    color: var(--ink-muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 0.25rem 0.15rem;
+    font-family: inherit;
+  }
+
+  .site-nav a:hover,
+  .theme-toggle:hover,
+  .cmdk-trigger:hover {
+    color: var(--accent-strong);
+  }
+
+  .cmdk-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .cmdk-trigger kbd {
+    font-size: 0.72rem;
+  }
+
+  @media (max-width: 640px) {
+    .brand__text {
+      font-size: 0.95rem;
+    }
+
+    .site-nav {
+      gap: 0.55rem;
+    }
+
+    .site-nav a,
+    .theme-toggle,
+    .cmdk-trigger {
+      font-size: 0.82rem;
+    }
+
+    .cmdk-trigger kbd {
+      display: none;
+    }
+  }
+</style>

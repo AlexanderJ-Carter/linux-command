@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SearchBox from '../components/SearchBox.astro';
+import CommandChips from '../components/CommandChips.astro';
+import { getPopularCommands, loadCommands } from '../lib/commands';
+import { withBase } from '../lib/paths';
+
+const commands = loadCommands();
+const popular = getPopularCommands(commands);
+---
+<BaseLayout
+  title="Linux Command"
+  description={`收录 ${commands.length} 个 Linux 命令，支持名称与说明全文搜索。`}
+  bodyClass="page-home"
+>
+  <SiteHeader />
+  <main class="site-main">
+    <section class="hero shell">
+      <p class="hero__eyebrow">TERMINAL PAPER</p>
+      <h1 class="hero__brand">Linux Command</h1>
+      <p class="hero__lead">
+        收录 <strong>{commands.length}</strong> 个命令手册。输入名称或中文说明，立刻定位。
+      </p>
+      <SearchBox type="home" />
+      <div class="hero__links">
+        <a href={withBase('/hot')}>字母列表</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase('/category')}>分类浏览</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase('/list')}>高级搜索</a>
+      </div>
+      {popular.length > 0 && (
+        <div class="hero__block">
+          <h2 class="section-title">常用命令</h2>
+          <CommandChips items={popular} label="常用命令" />
+        </div>
+      )}
+      <div class="hero__block favorite-commands" id="favorite_commands" hidden>
+        <h2 class="section-title">我的收藏</h2>
+        <div class="cmd-chips" id="favorite_commands_list" aria-label="收藏的命令"></div>
+      </div>
+      <div class="hero__block recent-commands" id="recent_commands" hidden>
+        <h2 class="section-title">最近查看</h2>
+        <div class="cmd-chips" id="recent_commands_list" aria-label="最近查看的命令"></div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter commandCount={commands.length} />
+</BaseLayout>
+
+<style>
+  .page-home .site-main {
+    display: grid;
+    align-items: center;
+    min-height: calc(100vh - var(--header-h) - 8rem);
+  }
+
+  .hero {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 1rem;
+    padding-block: 2rem 3rem;
+    animation: rise 0.55s ease both;
+  }
+
+  .hero__eyebrow {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+  }
+
+  .hero__brand {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: clamp(2.4rem, 7vw, 4.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+
+  .hero__lead {
+    margin: 0 0 0.5rem;
+    max-width: 34rem;
+    color: var(--ink-muted);
+    font-size: 1.05rem;
+  }
+
+  .hero__lead strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    justify-content: center;
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+  }
+
+  .hero__links a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .hero__links a:hover {
+    color: var(--accent-strong);
+  }
+
+  .hero__block {
+    width: min(100%, 720px);
+    margin-top: 1.25rem;
+    text-align: left;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

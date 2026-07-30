@@ -1,0 +1,17 @@
+node_modules
+dist
+.deploy
+.astro
+.git
+.github
+docs
+assets
+k8s
+README.md
+CONTRIBUTING.md
+SECURITY.md
+LICENSE
+.env
+.env.*
+.DS_Store
+npm-debug.log

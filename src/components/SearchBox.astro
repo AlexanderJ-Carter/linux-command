@@ -1,0 +1,168 @@
+---
+interface Props {
+  type?: 'home' | 'page';
+  initialQuery?: string;
+}
+
+const { type = 'page', initialQuery = '' } = Astro.props;
+const isHome = type === 'home';
+---
+<div class:list={['search-box', { 'search-box--home': isHome }]} data-search-root>
+  <label class="sr-only" for="query">搜索 Linux 命令</label>
+  <div class="search-box__row">
+    <input
+      class="search-box__input focus-ring"
+      id="query"
+      name="query"
+      type="search"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder={isHome ? '搜索命令名或说明…' : '继续搜索…'}
+      value={initialQuery}
+      aria-controls="result"
+      aria-autocomplete="list"
+    />
+    <button class="search-box__btn focus-ring" id="search_btn" type="button">搜索</button>
+  </div>
+  {!isHome && (
+      <p class="search-box__hint muted">
+      快捷键 <kbd>/</kbd> 聚焦搜索 · <kbd>Ctrl</kbd>+<kbd>K</kbd> 命令面板
+    </p>
+  )}
+  <ul
+    class="search-box__result"
+    id="result"
+    role="listbox"
+    aria-label="搜索建议"
+    hidden
+  ></ul>
+  {isHome && (
+    <div class="search-tips" aria-label="搜索示例">
+      <button class="search-tip focus-ring" type="button" data-kw="ls">ls</button>
+      <button class="search-tip focus-ring" type="button" data-kw="查找文件">查找文件</button>
+      <button class="search-tip focus-ring" type="button" data-kw="chmod">chmod</button>
+      <button class="search-tip focus-ring" type="button" data-kw="网络">网络</button>
+    </div>
+  )}
+</div>
+
+<style>
+  .search-box {
+    position: relative;
+    width: min(100%, 640px);
+  }
+
+  .search-box--home {
+    width: min(100%, 720px);
+  }
+
+  .search-box__row {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .search-box__input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 500 1.05rem/1.4 var(--font-mono);
+    padding: 0.95rem 1rem;
+  }
+
+  .search-box__input::placeholder {
+    color: var(--ink-muted);
+    font-weight: 400;
+  }
+
+  .search-box__btn {
+    border: 0;
+    border-left: 1px solid var(--line);
+    background: var(--accent);
+    color: #fff;
+    font: 600 0.95rem/1 var(--font-sans);
+    padding: 0 1.25rem;
+    cursor: pointer;
+  }
+
+  .search-box__btn:hover {
+    background: var(--accent-strong);
+  }
+
+  .search-box__hint {
+    margin: 0.55rem 0 0;
+    font-size: 0.85rem;
+  }
+
+  .search-box__result {
+    position: absolute;
+    z-index: 30;
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.45rem);
+    margin: 0;
+    padding: 0.4rem;
+    list-style: none;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow);
+    max-height: 320px;
+    overflow: auto;
+  }
+
+  .search-box__result[hidden] {
+    display: none;
+  }
+
+  .search-box__result :global(li) {
+    border-radius: 8px;
+  }
+
+  .search-box__result :global(a) {
+    display: block;
+    padding: 0.65rem 0.75rem;
+    color: var(--ink);
+    text-decoration: none;
+    border-radius: 8px;
+  }
+
+  .search-box__result :global(a:hover),
+  .search-box__result :global(li.ok a) {
+    background: var(--accent-soft);
+  }
+
+  .search-box__result :global(.kw) {
+    color: var(--accent-strong);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .search-tips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+
+  .search-tip {
+    border: 1px dashed var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-muted);
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+    font: 500 0.85rem/1 var(--font-mono);
+  }
+
+  .search-tip:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+</style>

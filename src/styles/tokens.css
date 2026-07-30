@@ -1,0 +1,40 @@
+:root {
+  --bg: #f4f7f5;
+  --bg-elevated: #ffffff;
+  --ink: #14201a;
+  --ink-muted: #5a6b62;
+  --accent: #0f7a4a;
+  --accent-soft: rgba(15, 122, 74, 0.12);
+  --accent-strong: #0a5c38;
+  --line: rgba(20, 32, 26, 0.1);
+  --shadow: 0 10px 30px rgba(20, 32, 26, 0.06);
+  --radius: 12px;
+  --font-sans: 'IBM Plex Sans', 'Noto Sans SC', 'PingFang SC', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace;
+  --header-h: 64px;
+  --max: 1120px;
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  --bg: #0f1612;
+  --bg-elevated: #172019;
+  --ink: #e8f0eb;
+  --ink-muted: #9bb0a4;
+  --accent: #3ecf8e;
+  --accent-soft: rgba(62, 207, 142, 0.16);
+  --accent-strong: #6ee7b0;
+  --line: rgba(232, 240, 235, 0.12);
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

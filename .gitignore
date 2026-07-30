@@ -1,7 +1,8 @@
 node_modules
 npm-debug.log
-package-lock.json
 .deploy
+dist
+.astro
 .DS_Store
 *.log
 .env

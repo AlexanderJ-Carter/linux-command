@@ -1,43 +1,29 @@
 {
   "name": "linux-command",
   "version": "1.24.0",
-  "description": "Linux Command",
-  "homepage": "https://jaywcjlove.github.io/linux-command/",
-  "main": "dist/data.json",
+  "private": true,
+  "description": "Linux Command — 命令速查手册",
+  "type": "module",
+  "homepage": "https://github.com/AlexanderJ-Carter/linux-command",
   "scripts": {
-    "start": "npm run build",
-    "build": "node scripts/build.mjs",
-    "dash": "npm run build && node scripts/dash.mjs"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sync:upstream": "node scripts/sync-upstream.mjs"
   },
-  "files": [
-    "command",
-    "dist"
-  ],
   "keywords": [
     "cli",
     "Linux",
     "Command"
   ],
-  "author": "kenny wang <wowohoo@qq.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jaywcjlove/linux-command.git"
-  },
-  "devDependencies": {
-    "@uiw/github-corners": "~1.5.11",
-    "@wcj/dark-mode": "~1.0.14",
-    "colors-cli": "~1.0.31",
-    "ejs": "~3.1.6",
-    "compressing": "^1.6.2",
-    "fs-extra": "~10.1.0",
-    "markdown-to-html-cli": "~4.0.0",
-    "sitemap-generator": "~8.5.1",
-    "sqlite3": "5.1.5",
-    "stylus": "~0.63.0",
-    "uglify-js": "~3.19.0"
-  },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^5.12.9",
+    "fuse.js": "^7.5.0",
+    "marked": "^15.0.12"
   }
 }

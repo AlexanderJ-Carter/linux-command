@@ -1,0 +1,169 @@
+---
+/** 全局命令面板：Ctrl/Cmd+K 打开 */
+---
+<div class="cmdk" id="cmdk" hidden>
+  <div class="cmdk__backdrop" data-cmdk-close tabindex="-1"></div>
+  <div
+    class="cmdk__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cmdk_title"
+  >
+    <div class="cmdk__header">
+      <label class="sr-only" for="cmdk_input" id="cmdk_title">命令面板</label>
+      <input
+        class="cmdk__input focus-ring"
+        id="cmdk_input"
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="搜索命令，或跳转页面…"
+      />
+      <kbd class="cmdk__esc">Esc</kbd>
+    </div>
+    <ul class="cmdk__list" id="cmdk_list" role="listbox" aria-label="面板结果"></ul>
+    <div class="cmdk__footer muted">
+      <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span><kbd>Enter</kbd> 打开</span>
+      <span><kbd>Esc</kbd> 关闭</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cmdk[hidden] {
+    display: none;
+  }
+
+  .cmdk {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: start center;
+    padding: 12vh 1rem 1rem;
+  }
+
+  .cmdk__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 18, 14, 0.45);
+    backdrop-filter: blur(4px);
+  }
+
+  .cmdk__panel {
+    position: relative;
+    width: min(100%, 560px);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: cmdk-in 0.18s ease both;
+  }
+
+  .cmdk__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .cmdk__input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 500 1.05rem/1.4 var(--font-mono);
+    padding: 0.35rem 0.15rem;
+  }
+
+  .cmdk__input:focus {
+    outline: none;
+  }
+
+  .cmdk__esc {
+    font-size: 0.75rem;
+  }
+
+  .cmdk__list {
+    margin: 0;
+    padding: 0.45rem;
+    list-style: none;
+    max-height: min(50vh, 380px);
+    overflow: auto;
+  }
+
+  .cmdk__list :global(li) {
+    border-radius: 10px;
+  }
+
+  .cmdk__list :global(a),
+  .cmdk__list :global(button.cmdk__item) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    text-decoration: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .cmdk__list :global(li.ok a),
+  .cmdk__list :global(li.ok button),
+  .cmdk__list :global(a:hover),
+  .cmdk__list :global(button:hover) {
+    background: var(--accent-soft);
+  }
+
+  .cmdk__list :global(.cmdk__name) {
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .cmdk__list :global(.cmdk__desc) {
+    color: var(--ink-muted);
+    font-size: 0.88rem;
+  }
+
+  .cmdk__list :global(.kw) {
+    color: var(--accent-strong);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .cmdk__list :global(.cmdk__empty) {
+    padding: 1.25rem 0.85rem;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+
+  .cmdk__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    padding: 0.55rem 0.9rem 0.75rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.78rem;
+  }
+
+  @keyframes cmdk-in {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+</style>

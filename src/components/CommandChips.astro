@@ -1,0 +1,25 @@
+---
+import { commandHref } from '../lib/paths';
+
+interface Chip {
+  n: string;
+  p: string;
+  d?: string;
+}
+
+interface Props {
+  items: Chip[];
+  label?: string;
+}
+
+const { items, label } = Astro.props;
+---
+{items.length > 0 && (
+  <div class="cmd-chips" aria-label={label}>
+    {items.map((cmd) => (
+      <a class="cmd-chip focus-ring" href={commandHref(cmd.p)} title={cmd.d || cmd.n}>
+        {cmd.n}
+      </a>
+    ))}
+  </div>
+)}

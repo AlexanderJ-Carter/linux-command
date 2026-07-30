@@ -1,161 +1,50 @@
 name: CI
+
 on:
-    push:
-        branches:
-            - '**'
-    pull_request:
-        branches:
-            - '**'
-    workflow_dispatch:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  workflow_dispatch:
 
 jobs:
-    build-deploy:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            pages: write
-            id-token: write
-            packages: write
-        concurrency:
-            group: pages
-            cancel-in-progress: false
-        env:
-            IMAGE_NAME: linux-command
-            IS_RELEASE: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')) || github.event_name == 'workflow_dispatch' }}
-        steps:
-            - uses: actions/checkout@v6
-            - uses: actions/setup-node@v6
-              with:
-                  node-version: 24
-                  registry-url: 'https://registry.npmjs.org'
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-${{ github.ref }}
+      cancel-in-progress: true
+    env:
+      IS_RELEASE: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')) || github.event_name == 'workflow_dispatch' }}
+      SITE_URL: https://alexanderj-carter.github.io
+      BASE_PATH: /linux-command
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Build Linux Command
-              run: |
-                  npm install
-                  npm run dash
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
 
-            - name: Set release env
-              run: echo "OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+      - name: Install & build
+        run: |
+          npm ci
+          npm run build
 
-            - name: Create Tag
-              if: env.IS_RELEASE == 'true'
-              id: create_tag
-              uses: jaywcjlove/create-tag-action@main
-              continue-on-error: true
-              with:
-                  package-path: ./package.json
+      - name: Setup GitHub Pages
+        if: env.IS_RELEASE == 'true'
+        uses: actions/configure-pages@v5
 
-            - name: Update Dash Feed
-              if: env.IS_RELEASE == 'true'
-              run: |
-                  VERSION="${{ steps.create_tag.outputs.versionNumber || 'deploy' }}"
-                  REPO_NAME="${GITHUB_REPOSITORY#*/}"
-                  BASE_URL="https://${{ github.repository_owner }}.github.io/${REPO_NAME}"
-                  echo "<entry><version>${VERSION}</version><url>${BASE_URL}/linux-command.docset.tgz</url></entry>" > .deploy/linux-command-docset.xml
+      - name: Upload Pages artifact
+        if: env.IS_RELEASE == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
 
-            - name: Generate Changelog
-              if: env.IS_RELEASE == 'true'
-              id: changelog
-              uses: jaywcjlove/changelog-generator@main
-              continue-on-error: true
-              with:
-                  filter-author: (小弟调调™)
-                  filter: (^[\s]+?[R|r]elease)|(^[R|r]elease)
-
-            - name: Create Release
-              if: env.IS_RELEASE == 'true' && steps.create_tag.outputs.successful
-              uses: ncipollo/release-action@v1
-              with:
-                  allowUpdates: true
-                  artifacts: '.deploy/linux-command.docset.tgz'
-                  draft: false
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  name: ${{ steps.create_tag.outputs.version }}
-                  tag: ${{ steps.create_tag.outputs.version }}
-                  body: |
-                      [![](https://img.shields.io/badge/Open%20in-unpkg-blue)](https://uiwjs.github.io/npm-unpkg/#/pkg/linux-command@${{steps.create_tag.outputs.versionNumber}}/file/README.md) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/linux-command)](https://bundlephobia.com/result?p=linux-command@${{steps.create_tag.outputs.versionNumber}})
-
-                      ```bash
-                      npm i linux-command@${{steps.create_tag.outputs.versionNumber}}
-                      ```
-
-                      ${{ steps.changelog.outputs.compareurl }}
-
-                      ${{ steps.changelog.outputs.changelog }}
-
-
-                      Document linux-command@${{ steps.changelog.outputs.tag }}:  
-                      https://raw.githack.com/jaywcjlove/linux-command/${{ steps.changelog.outputs.gh-pages-short-hash }}/index.html
-
-
-                      ## Docker (GHCR)
-
-                      轻松通过 `docker` 部署 `linux-command` 网站：
-
-                      ```bash
-                      docker pull ghcr.io/${{ env.OWNER }}/linux-command:latest
-                      docker run --name linux-command --rm -d -p 9665:3000 ghcr.io/${{ env.OWNER }}/linux-command:latest
-                      # Or
-                      docker run --name linux-command -itd -p 9665:3000 ghcr.io/${{ env.OWNER }}/linux-command:latest
-                      ```
-
-                      在浏览器中访问以下 URL
-
-                      ```bash
-                      http://localhost:9665/
-                      ```
-
-            - run: rm -rf .deploy/linux-command.docset
-              if: env.IS_RELEASE == 'true'
-
-            - name: Setup GitHub Pages
-              if: env.IS_RELEASE == 'true'
-              uses: actions/configure-pages@v4
-
-            - name: Upload GitHub Pages artifact
-              if: env.IS_RELEASE == 'true'
-              uses: actions/upload-pages-artifact@v3
-              with:
-                  path: .deploy
-
-            - name: Deploy to GitHub Pages
-              if: env.IS_RELEASE == 'true'
-              id: deployment
-              uses: actions/deploy-pages@v4
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - run: NODE_AUTH_TOKEN="" npm publish --access public --provenance
-              if: env.IS_RELEASE == 'true'
-              continue-on-error: true
-              name: 📦 linux-command publish to NPM
-
-            # Docker 构建并推送（仅推送到 GHCR）
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
-            - name: Login to GitHub Container Registry
-              if: env.IS_RELEASE == 'true'
-              uses: docker/login-action@v3
-              with:
-                  registry: ghcr.io
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Build and push image:latest
-              uses: docker/build-push-action@v6
-              continue-on-error: true
-              with:
-                  push: ${{ env.IS_RELEASE == 'true' }}
-                  context: .
-                  platforms: linux/amd64,linux/arm64
-                  tags: ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:latest
-
-            - name: Build and push image:tags
-              if: env.IS_RELEASE == 'true' && steps.create_tag.outputs.successful == 'true'
-              uses: docker/build-push-action@v6
-              continue-on-error: true
-              with:
-                  push: true
-                  context: .
-                  platforms: linux/amd64,linux/arm64
-                  tags: ghcr.io/${{ env.OWNER }}/${{ env.IMAGE_NAME }}:${{ steps.changelog.outputs.version }}
+      - name: Deploy to GitHub Pages
+        if: env.IS_RELEASE == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4

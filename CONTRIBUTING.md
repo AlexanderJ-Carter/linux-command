@@ -2,7 +2,18 @@
 
 本仓库为 [jaywcjlove/linux-command](https://github.com/jaywcjlove/linux-command) 的 Fork。新增命令或文档建议优先提交至原仓库，以便惠及更多用户。
 
-感谢您对本项目提交贡献，为了便于维护者管理，请各位维护人员遵循以下约定
+## 本地预览站点
+
+```bash
+npm install
+npm run dev
+```
+
+同步上游命令文档：
+
+```bash
+npm run sync:upstream
+```
 
 ## 如果您希望提交一个命令
 
@@ -11,18 +22,18 @@
 1. 在这里创建一个 `[CommandName].md` 文件，比如 `pacman.md`
 2. 打开文件，键入指令在终端中执行的命令
 3. 第二行输入三个等号
-4. 创建二级标题“补充说明”，并且在这个标题下面创建至少下面几个三级标题
+4. 创建二级标题「补充说明」，并且在这个标题下面创建至少下面几个三级标题
    - 语法
    - 选项
    - 参数
 
-按照预期，文档应该是这样的
+按照预期，文档应该是这样的：
 
 ```markdown
 CommandName
 ===
 
-这里是命令介绍，它可以被搜索到，如果你有个流行的应用，包含多个命令，可放到这里，以便搜索到对应的命令
+这里是命令介绍，它可以被搜索到
 
 ## 补充说明
 
@@ -30,34 +41,21 @@ CommandName
 
 ### 语法
 
-(具体编写文档时，请使用 shell 代码块包裹以下内容)
-
+```shell
 CommandName <-abcdABCD> <必选参数> [可选参数]
+```
 
 ### 选项
 
-(具体编写文档时，请使用 shell 代码块包裹以下内容)
-
--a xxxxx
--b xxxxx
-...
--C xxxxx
--D xxxxx
+```shell
+-a   # 选项说明
+```
 
 ### 参数
 
-(具体编写文档时，请使用 shell 代码块包裹以下内容)
-
-可选参数：一般情况下可以不给出
-
+```shell
+参数说明
+```
 ```
 
-## 如果您希望维护前端页面
-
-- 请确保您的代码可以完整的运行在最新的 Chromium 和 Safari 浏览器 (#489)
-
-## 对于提交信息的其他规范
-
-- 约定式提交 <https://www.conventionalcommits.org/zh-hans/v1.0.0/>
-- 中文文案排版指北 <https://github.com/sparanoid/chinese-copywriting-guidelines/blob/master/README.zh-Hans.md>
-- 扉页 — Google 开源项目风格指南 <https://zh-google-styleguide.readthedocs.io/en/latest/google-shell-styleguide/>
+提交前请确认 `npm run build` 可通过。

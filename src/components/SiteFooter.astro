@@ -1,0 +1,64 @@
+---
+import { withBase } from '../lib/paths';
+
+interface Props {
+  commandCount: number;
+}
+
+const { commandCount } = Astro.props;
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="shell">
+    <p class="fork-credit muted">
+      Fork 自
+      <a href="https://github.com/jaywcjlove/linux-command" rel="noopener" target="_blank">jaywcjlove/linux-command</a>
+      ，MIT 协议。本站为学习魔改版。
+    </p>
+    <nav class="footer-nav" aria-label="页脚导航">
+      <a href={withBase('/')}>首页</a>
+      <span class="sep">·</span>
+      <a href={withBase('/hot')}>字母表</a>
+      <span class="sep">·</span>
+      <a href={withBase('/category')}>分类</a>
+      <span class="sep">·</span>
+      <a href={withBase('/list')}>搜索</a>
+    </nav>
+    <p class="footer-meta muted">
+      收录 {commandCount} 个命令 · © {year}
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    padding: 2.5rem 0 3rem;
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+
+  .fork-credit,
+  .footer-meta {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+
+  .footer-nav {
+    margin: 0.85rem 0;
+  }
+
+  .footer-nav a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .footer-nav a:hover {
+    color: var(--accent-strong);
+  }
+
+  .sep {
+    margin: 0 0.4rem;
+    color: var(--ink-muted);
+  }
+</style>

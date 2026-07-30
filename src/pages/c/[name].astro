@@ -1,0 +1,205 @@
+---
+import { marked } from 'marked';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import SearchBox from '../../components/SearchBox.astro';
+import CommandChips from '../../components/CommandChips.astro';
+import { loadCommands } from '../../lib/commands';
+import { relatedCommands } from '../../data/categories';
+import { withBase } from '../../lib/paths';
+
+export function getStaticPaths() {
+  return loadCommands().map((cmd) => ({
+    params: { name: cmd.p.replace(/^\//, '') },
+    props: { cmd },
+  }));
+}
+
+const { cmd } = Astro.props;
+const commands = loadCommands();
+const related = relatedCommands(cmd.n, commands);
+const html = marked.parse(cmd.body, { async: false }) as string;
+---
+<BaseLayout title={`${cmd.n} 命令详解 | Linux Command`} description={`${cmd.n}: ${cmd.d}`}>
+  <SiteHeader compact />
+  <main class="site-main">
+    <div class="shell cmd-top">
+      <SearchBox />
+      <nav class="breadcrumb" aria-label="面包屑">
+        <a href={withBase('/')}>首页</a>
+        <span>/</span>
+        <a href={withBase('/category')}>分类</a>
+        <span>/</span>
+        <a href={withBase('/hot')}>字母列表</a>
+        <span>/</span>
+        <span aria-current="page">{cmd.n}</span>
+      </nav>
+      <header
+        class="cmd-page-header"
+        data-cmd-name={cmd.n}
+        data-cmd-path={cmd.p}
+        data-cmd-desc={cmd.d}
+      >
+        <div class="cmd-page-header__row">
+          <h1 class="cmd-page-title">{cmd.n}</h1>
+          <button
+            class="favorite-btn focus-ring"
+            id="favorite_btn"
+            type="button"
+            aria-pressed="false"
+          >
+            收藏
+          </button>
+        </div>
+        <p class="cmd-page-desc">{cmd.d}</p>
+      </header>
+    </div>
+
+    <div class="shell cmd-layout">
+      <nav class="cmd-toc" id="cmd_toc" aria-label="本页目录" hidden></nav>
+      <article class="markdown-body" data-markdown>
+        <div set:html={html} />
+        {related.length > 0 && (
+          <section class="related-commands" aria-label="相关命令">
+            <h2>相关命令</h2>
+            <CommandChips items={related} label="相关命令" />
+          </section>
+        )}
+      </article>
+    </div>
+  </main>
+  <SiteFooter commandCount={commands.length} />
+</BaseLayout>
+
+<style>
+  .cmd-top {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+  }
+
+  .breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--accent-strong);
+  }
+
+  .cmd-page-header {
+    padding-bottom: 0.5rem;
+  }
+
+  .cmd-page-header__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .cmd-page-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    letter-spacing: -0.03em;
+  }
+
+  .favorite-btn {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-muted);
+    padding: 0.45rem 0.9rem;
+    font: 600 0.9rem/1 var(--font-sans);
+    cursor: pointer;
+  }
+
+  .favorite-btn:hover,
+  .favorite-btn.is-active {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+  }
+
+  .cmd-page-desc {
+    margin: 0.45rem 0 0;
+    color: var(--ink-muted);
+    font-size: 1.05rem;
+  }
+
+  .cmd-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .cmd-toc {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+    align-self: start;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
+  }
+
+  .cmd-toc[hidden] {
+    display: none;
+  }
+
+  .cmd-toc :global(.cmd-toc__title) {
+    margin-bottom: 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .cmd-toc :global(.cmd-toc__list) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cmd-toc :global(.cmd-toc__item) {
+    margin: 0.25rem 0;
+  }
+
+  .cmd-toc :global(.cmd-toc__item--h3) {
+    padding-left: 0.75rem;
+    font-size: 0.92rem;
+  }
+
+  .cmd-toc :global(a) {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .cmd-toc :global(a:hover) {
+    color: var(--accent-strong);
+  }
+
+  .related-commands {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (min-width: 960px) {
+    .cmd-layout {
+      grid-template-columns: 220px minmax(0, 1fr);
+    }
+  }
+</style>
