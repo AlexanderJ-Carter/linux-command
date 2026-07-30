@@ -40,8 +40,9 @@ BASE_PATH=/linux-command SITE_URL=https://example.com npm run build
 ## 部署
 
 - **产物目录**：`dist/`
+- **线上地址**：https://linux-command.alexander.xin/
 - **Vercel / Netlify**：已指向 `dist`
-- **GitHub Pages**：CI 在 `master`/`main` 推送时构建并部署（`BASE_PATH=/linux-command`）
+- **GitHub Pages**：CI 在 `master`/`main` 推送时构建并部署（自定义域名，`BASE_PATH=/`）
 - **Docker**：多阶段构建，镜像内含静态站点
 
 ```bash

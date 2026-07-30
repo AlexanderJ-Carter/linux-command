@@ -19,8 +19,8 @@ jobs:
       cancel-in-progress: true
     env:
       IS_RELEASE: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')) || github.event_name == 'workflow_dispatch' }}
-      SITE_URL: https://alexanderj-carter.github.io
-      BASE_PATH: /linux-command
+      SITE_URL: https://linux-command.alexander.xin
+      BASE_PATH: /
     steps:
       - uses: actions/checkout@v4
 
