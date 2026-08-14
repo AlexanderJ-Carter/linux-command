@@ -1,5 +1,5 @@
 ---
-import { marked } from 'marked';
+import { renderMarkdown } from '../../lib/render-markdown';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
@@ -19,9 +19,23 @@ export function getStaticPaths() {
 const { cmd } = Astro.props;
 const commands = loadCommands();
 const related = relatedCommands(cmd.n, commands);
-const html = marked.parse(cmd.body, { async: false }) as string;
+const html = renderMarkdown(cmd.body);
+const pageUrl = new URL(Astro.url.pathname, Astro.site ?? new URL(Astro.url.origin)).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  headline: `${cmd.n} 命令详解`,
+  name: cmd.n,
+  description: cmd.d,
+  inLanguage: 'zh-CN',
+  mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+};
 ---
-<BaseLayout title={`${cmd.n} 命令详解 | Linux Command`} description={`${cmd.n}: ${cmd.d}`}>
+<BaseLayout
+  title={`${cmd.n} 命令详解 | Linux Command`}
+  description={`${cmd.n}: ${cmd.d}`}
+  jsonLd={jsonLd}
+>
   <SiteHeader compact />
   <main class="site-main">
     <div class="shell cmd-top">

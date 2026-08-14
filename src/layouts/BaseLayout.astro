@@ -7,13 +7,24 @@ interface Props {
   title: string;
   description?: string;
   bodyClass?: string;
+  /** 覆盖默认社交卡片图（站点相对路径，如 /og.png）。 */
+  ogImage?: string;
+  /** 注入 <script type="application/ld+json"> 结构化数据。 */
+  jsonLd?: object | object[];
 }
 
 const {
   title,
   description = 'Linux 命令速查手册：名称与说明全文搜索，适合日常查阅。',
   bodyClass = '',
+  ogImage,
+  jsonLd,
 } = Astro.props;
+
+const siteOrigin = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(Astro.url.pathname, siteOrigin).href;
+const ogImageUrl = new URL(ogImage ?? '/og.png', siteOrigin).href;
+const jsonLdString = jsonLd ? JSON.stringify(jsonLd) : '';
 ---
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -27,6 +38,17 @@ const {
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content="Linux Command" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Linux Command — 终端纸感速查手册" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" href={assetHref('favicon.svg')} type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -35,6 +57,9 @@ const {
       rel="stylesheet"
     />
     <title>{title}</title>
+    {jsonLdString && (
+      <script type="application/ld+json" is:inline set:html={jsonLdString} />
+    )}
     <script is:inline>
       (function () {
         const key = 'linux_command_theme';
