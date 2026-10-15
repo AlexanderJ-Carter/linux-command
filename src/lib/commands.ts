@@ -32,7 +32,23 @@ const POPULAR_COMMAND_NAMES = [
     'awk',
 ] as const;
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+/**
+ * 定位仓库根目录。构建期模块可能被 Astro 打包搬运（如 dist/.prerender/chunks/），
+ * import.meta.url 相对路径不再可靠，因此优先取 process.cwd()（astro build/dev
+ * 均以项目根为工作目录），找不到 command/ 时再退回源码相对路径（供脚本单独调用）。
+ */
+function resolveRoot(): string {
+    const candidates = [
+        process.cwd(),
+        path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'),
+    ];
+    for (const dir of candidates) {
+        if (fs.existsSync(path.join(dir, 'command'))) return dir;
+    }
+    return candidates[0];
+}
+
+const ROOT = resolveRoot();
 const COMMAND_DIR = path.join(ROOT, 'command');
 
 function sanitizeCommandName(value: string): string {
