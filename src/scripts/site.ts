@@ -104,7 +104,9 @@ async function loadIndex(): Promise<IndexItem[]> {
 function highlight(text: string, query: string) {
     const safe = escapeHtml(text);
     if (!query) return safe;
-    const reg = new RegExp(`(${escapeRegExp(query)})`, 'ig');
+    // 文本已转义，关键词需同样转义后匹配（如查询包含 & < > 时才不会漏高亮）。
+    const needle = escapeHtml(query);
+    const reg = new RegExp(`(${escapeRegExp(needle)})`, 'ig');
     return safe.replace(reg, '<i class="kw">$1</i>');
 }
 
@@ -172,6 +174,32 @@ function initToc() {
     toc.hidden = false;
 }
 
+/** clipboard API 在非安全上下文（如 http 局域网访问）不可用，降级到 execCommand。 */
+async function copyText(text: string): Promise<boolean> {
+    try {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
+        }
+    } catch {
+        // 落到下面的降级方案
+    }
+    try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        ta.remove();
+        return ok;
+    } catch {
+        return false;
+    }
+}
+
 function initCodeCopy() {
     document.querySelectorAll('[data-markdown] pre').forEach((pre) => {
         if (pre.querySelector('.code-copy')) return;
@@ -182,8 +210,8 @@ function initCodeCopy() {
         btn.addEventListener('click', async () => {
             const code = pre.querySelector('code');
             const text = code?.textContent || pre.textContent || '';
-            await navigator.clipboard.writeText(text);
-            btn.textContent = '已复制';
+            const ok = await copyText(text);
+            btn.textContent = ok ? '已复制' : '复制失败';
             window.setTimeout(() => {
                 btn.textContent = '复制';
             }, 1200);

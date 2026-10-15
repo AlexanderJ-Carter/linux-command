@@ -18,6 +18,28 @@ const ALLOWED_ATTR = [
     'colspan', 'rowspan', 'target', 'rel', 'lang', 'dir',
 ];
 
+/** 与前端 TOC 一致的标题 id 规则（空白折叠为 -，转小写）。 */
+function headingSlug(text: string): string {
+    return text.replace(/<[^>]+>/g, '').trim().replace(/\s+/g, '-').toLowerCase();
+}
+
+/**
+ * 构建期为正文标题注入稳定 id，保证 #锚点 可分享、对 SEO 可见，
+ * 而不依赖前端 JS 生成。重复标题追加 -2/-3 序号。
+ */
+function addHeadingIds(html: string): string {
+    const seen = new Map<string, number>();
+    return html.replace(/<h([1-6])([^>]*)>([\s\S]*?)<\/h\1>/g, (match, level, attrs, inner) => {
+        if (/\bid\s*=/.test(attrs)) return match;
+        const base = headingSlug(inner);
+        if (!base) return match;
+        const count = (seen.get(base) ?? 0) + 1;
+        seen.set(base, count);
+        const id = count === 1 ? base : `${base}-${count}`;
+        return `<h${level}${attrs} id="${id}">${inner}</h${level}>`;
+    });
+}
+
 /**
  * 把命令 Markdown 渲染为安全的 HTML。
  * marked 不做清洗(marked v15 官方建议用 DOMPurify 处理输出),
@@ -25,5 +47,5 @@ const ALLOWED_ATTR = [
  */
 export function renderMarkdown(md: string): string {
     const raw = marked.parse(md, { async: false }) as string;
-    return DOMPurify.sanitize(raw, { ALLOWED_TAGS, ALLOWED_ATTR });
+    return addHeadingIds(DOMPurify.sanitize(raw, { ALLOWED_TAGS, ALLOWED_ATTR }));
 }

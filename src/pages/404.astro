@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SearchBox from '../components/SearchBox.astro';
+import CommandChips from '../components/CommandChips.astro';
+import { getPopularCommands, loadCommands } from '../lib/commands';
+import { withBase } from '../lib/paths';
+
+const commands = loadCommands();
+const popular = getPopularCommands(commands).slice(0, 10);
+---
+<BaseLayout
+  title="页面不存在 | Linux Command"
+  description="页面未找到。搜索 Linux 命令，或从常用命令继续浏览。"
+>
+  <SiteHeader compact />
+  <main class="site-main">
+    <section class="shell notfound">
+      <p class="notfound__code" aria-hidden="true">404</p>
+      <h1 class="notfound__title">没有找到这个页面</h1>
+      <p class="notfound__lead muted">
+        命令名可能拼错了？直接搜索试试，或从下面的入口继续。
+      </p>
+      <SearchBox />
+      <nav class="notfound__links" aria-label="站点导航">
+        <a href={withBase('/')}>首页</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase('/hot')}>字母列表</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase('/category')}>分类浏览</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase('/list')}>高级搜索</a>
+      </nav>
+      {popular.length > 0 && (
+        <div class="notfound__block">
+          <h2 class="section-title">常用命令</h2>
+          <CommandChips items={popular} label="常用命令" />
+        </div>
+      )}
+    </section>
+  </main>
+  <SiteFooter commandCount={commands.length} />
+</BaseLayout>
+
+<style>
+  .notfound {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 1rem;
+    padding-block: 3rem 4rem;
+  }
+
+  .notfound__code {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: clamp(3.5rem, 12vw, 6rem);
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+  }
+
+  .notfound__title {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+
+  .notfound__lead {
+    margin: 0 0 0.5rem;
+    max-width: 30rem;
+  }
+
+  .notfound__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    justify-content: center;
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+  }
+
+  .notfound__links a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .notfound__links a:hover {
+    color: var(--accent-strong);
+  }
+
+  .notfound__block {
+    width: min(100%, 720px);
+    margin-top: 1.25rem;
+    text-align: left;
+  }
+</style>
