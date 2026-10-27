@@ -18,12 +18,16 @@ const isHome = type === 'home';
       id="query"
       name="query"
       type="search"
+      role="combobox"
       autocomplete="off"
       spellcheck="false"
+      enterkeyhint="search"
       placeholder={isHome ? '命令名或说明关键词…' : '过滤结果…'}
       value={initialQuery}
       aria-controls="result"
       aria-autocomplete="list"
+      aria-expanded="false"
+      aria-haspopup="listbox"
     />
     <button class="search-box__btn focus-ring" id="search_btn" type="button">Go</button>
   </div>
@@ -98,7 +102,7 @@ const isHome = type === 'home';
     border: 0;
     background: transparent;
     color: var(--ink);
-    font: 500 0.95rem/1.4 var(--font-mono);
+    font: 500 max(16px, 0.95rem) / 1.4 var(--font-mono);
     padding: 0.65rem 0.75rem;
   }
 
@@ -113,6 +117,8 @@ const isHome = type === 'home';
     background: var(--ink);
     color: var(--bg);
     font: 600 0.8rem/1 var(--font-mono);
+    min-height: 2.75rem;
+    min-width: 2.75rem;
     padding: 0 1rem;
     cursor: pointer;
     letter-spacing: 0.04em;

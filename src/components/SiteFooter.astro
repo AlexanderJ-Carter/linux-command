@@ -1,5 +1,6 @@
 ---
 import { withBase } from '../lib/paths';
+import { ECOSYSTEM } from '../lib/ecosystem';
 
 interface Props {
   commandCount: number;
@@ -7,6 +8,7 @@ interface Props {
 
 const { commandCount } = Astro.props;
 const year = new Date().getFullYear();
+const ecosystemLinks = [ECOSYSTEM.folio, ECOSYSTEM.netq, ECOSYSTEM.tools];
 ---
 <footer class="site-footer">
   <div class="shell site-footer__inner">
@@ -20,6 +22,11 @@ const year = new Date().getFullYear();
       <a href={withBase('/hot')}>A–Z</a>
       <a href={withBase('/category')}>分类</a>
       <a href={withBase('/list')}>搜索</a>
+    </nav>
+    <nav class="footer-eco" aria-label="站群">
+      {ecosystemLinks.map((link) => (
+        <a href={link.href} rel="noopener noreferrer" title={link.title}>{link.label}</a>
+      ))}
     </nav>
     <p class="footer-meta muted">
       {commandCount} entries · © {year}
@@ -63,6 +70,24 @@ const year = new Date().getFullYear();
   }
 
   .footer-nav a:hover {
+    color: var(--accent-strong);
+  }
+
+  .footer-eco {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .footer-eco a {
+    color: var(--ink-muted);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-eco a:hover {
     color: var(--accent-strong);
   }
 

@@ -1,4 +1,12 @@
-import { searchCommands, type IndexItem } from './search-engine';
+import type { IndexItem } from './search-engine';
+
+type SearchEngine = typeof import('./search-engine');
+let searchEngine: SearchEngine | null = null;
+
+async function getSearchEngine(): Promise<SearchEngine> {
+    if (!searchEngine) searchEngine = await import('./search-engine');
+    return searchEngine;
+}
 
 const RECENT_KEY = 'linux_command_recent';
 const FAV_KEY = 'linux_command_favorites';
@@ -89,16 +97,53 @@ function toggleFavorite(item: IndexItem) {
     return !exists;
 }
 
+let indexPromise: Promise<IndexItem[]> | null = null;
+
 async function loadIndex(): Promise<IndexItem[]> {
     const cached = (window as unknown as { __linux_commands__?: IndexItem[] })
         .__linux_commands__;
     if (cached) return cached;
-    const res = await fetch(`${getBasePath()}/search-index.json`);
-    if (!res.ok) throw new Error('failed to load search index');
-    const data = (await res.json()) as IndexItem[];
-    (window as unknown as { __linux_commands__: IndexItem[] }).__linux_commands__ =
-        data;
-    return data;
+    if (!indexPromise) {
+        indexPromise = fetch(`${getBasePath()}/search-index.json`)
+            .then((res) => {
+                if (!res.ok) throw new Error('failed to load search index');
+                return res.json() as Promise<IndexItem[]>;
+            })
+            .then((data) => {
+                (window as unknown as { __linux_commands__: IndexItem[] }).__linux_commands__ =
+                    data;
+                return data;
+            });
+    }
+    return indexPromise;
+}
+
+function prefetchSearchIndex() {
+    const run = () => {
+        void loadIndex();
+    };
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(run, { timeout: 2500 });
+    } else {
+        window.setTimeout(run, 800);
+    }
+}
+
+function setListboxActive(
+    items: HTMLElement[],
+    index: number,
+    input: HTMLInputElement,
+    idPrefix: string,
+) {
+    items.forEach((item, i) => {
+        const active = i === index;
+        item.classList.toggle('ok', active);
+        item.setAttribute('aria-selected', active ? 'true' : 'false');
+        if (!item.id) item.id = `${idPrefix}-${i}`;
+    });
+    const activeEl = items[index];
+    if (activeEl) input.setAttribute('aria-activedescendant', activeEl.id);
+    else input.removeAttribute('aria-activedescendant');
 }
 
 function highlight(text: string, query: string) {
@@ -294,12 +339,25 @@ function initCommandPalette() {
     let index: IndexItem[] = [];
     let rows: PaletteRow[] = [];
     let open = false;
+    let focusBeforeOpen: HTMLElement | null = null;
 
     const navRows = (): PaletteRow[] => [
         { kind: 'nav', n: '首页', d: '回到搜索首页', href: pageHref('/') },
         { kind: 'nav', n: '字母表', d: '按字母浏览全部命令', href: pageHref('/hot') },
         { kind: 'nav', n: '分类', d: '按用途浏览命令', href: pageHref('/category') },
         { kind: 'nav', n: '高级搜索', d: '打开搜索结果页', href: pageHref('/list') },
+        {
+            kind: 'nav',
+            n: 'netq',
+            d: '交互式网络排查 CLI',
+            href: 'https://netq.alexander.xin/',
+        },
+        {
+            kind: 'nav',
+            n: 'Folio',
+            d: '主站 alexander.xin',
+            href: 'https://alexander.xin/',
+        },
     ];
 
     const setOpen = (next: boolean) => {
@@ -307,19 +365,24 @@ function initCommandPalette() {
         root.hidden = !next;
         document.body.style.overflow = next ? 'hidden' : '';
         if (next) {
+            focusBeforeOpen = document.activeElement as HTMLElement | null;
             input.value = '';
             void refresh('');
             window.requestAnimationFrame(() => input.focus());
+        } else {
+            input.removeAttribute('aria-activedescendant');
+            focusBeforeOpen?.focus?.();
+            focusBeforeOpen = null;
         }
     };
 
     const selectIndex = (idx: number) => {
-        const items = [...list.children] as HTMLElement[];
-        items.forEach((el) => el.classList.remove('ok'));
+        const items = [...list.children].filter(
+            (el) => el.classList.contains('cmdk__empty') === false,
+        ) as HTMLElement[];
+        setListboxActive(items, idx, input, 'cmdk-opt');
         const target = items[idx];
-        if (!target) return;
-        target.classList.add('ok');
-        target.scrollIntoView({ block: 'nearest' });
+        target?.scrollIntoView({ block: 'nearest' });
     };
 
     const render = (query: string) => {
@@ -331,9 +394,11 @@ function initCommandPalette() {
             list.appendChild(li);
             return;
         }
-        rows.forEach((row) => {
+        rows.forEach((row, i) => {
             const li = document.createElement('li');
+            li.id = `cmdk-opt-${i}`;
             li.setAttribute('role', 'option');
+            li.setAttribute('aria-selected', 'false');
             if (row.kind === 'cmd') {
                 li.innerHTML = `<a href="${commandHref(row.item.p)}"><span class="cmdk__name">${highlight(row.item.n, query)}</span><span class="cmdk__desc">${highlight(row.item.d || '', query)}</span></a>`;
             } else {
@@ -357,7 +422,8 @@ function initCommandPalette() {
             render('');
             return;
         }
-        const hits = searchCommands(index, q).slice(0, 12);
+        const { searchCommands } = await getSearchEngine();
+        const hits = (await searchCommands(index, q, { fuzzyLimit: 40 })).slice(0, 12);
         const navHits = navRows().filter(
             (row) =>
                 row.kind === 'nav' &&
@@ -410,7 +476,9 @@ function initCommandPalette() {
             return;
         }
 
-        const items = [...list.children] as HTMLElement[];
+        const items = [...list.children].filter(
+            (el) => !el.classList.contains('cmdk__empty'),
+        ) as HTMLElement[];
         const current = items.findIndex((item) => item.classList.contains('ok'));
         if (e.key === 'ArrowDown') {
             e.preventDefault();
@@ -445,9 +513,12 @@ function initSearch() {
     const pageSize = 50;
     const suggestSize = 8;
 
+    const isHome = document.body.classList.contains('page-home');
+
     const showDropdown = (visible: boolean) => {
         if (!dropdown || listPage) return;
         dropdown.hidden = !visible;
+        input.setAttribute('aria-expanded', visible ? 'true' : 'false');
     };
 
     const renderSuggest = (items: IndexItem[], query: string) => {
@@ -459,12 +530,16 @@ function initSearch() {
             dropdown.appendChild(li);
             return;
         }
-        items.forEach((item) => {
+        items.forEach((item, i) => {
             const li = document.createElement('li');
+            li.id = `search-opt-${i}`;
             li.setAttribute('role', 'option');
+            li.setAttribute('aria-selected', 'false');
             li.innerHTML = resultHtml(item, query);
             dropdown.appendChild(li);
         });
+        const optionEls = [...dropdown.children] as HTMLElement[];
+        if (optionEls.length) setListboxActive(optionEls, 0, input, 'search-opt');
     };
 
     const updateMeta = (total: number, shown: number, query: string) => {
@@ -511,9 +586,10 @@ function initSearch() {
 
     const runSearch = async (fromButton = false) => {
         if (!index.length) index = await loadIndex();
+        const { searchCommands } = await getSearchEngine();
         const query = input.value.trim();
         if (listPage) {
-            listResults = searchCommands(index, query);
+            listResults = await searchCommands(index, query, { fuzzyLimit: 400 });
             renderListPage(true);
             const url = new URL(window.location.href);
             if (query) url.searchParams.set('kw', query);
@@ -522,10 +598,22 @@ function initSearch() {
             return;
         }
         if (!query) {
+            if (isHome && document.activeElement === input) {
+                const recent = getRecent().slice(0, suggestSize);
+                if (recent.length) {
+                    renderSuggest(recent, '');
+                    showDropdown(true);
+                    return;
+                }
+            }
             showDropdown(false);
+            input.removeAttribute('aria-activedescendant');
             return;
         }
-        const results = searchCommands(index, query).slice(0, suggestSize);
+        const results = (await searchCommands(index, query, { fuzzyLimit: 60 })).slice(
+            0,
+            suggestSize,
+        );
         renderSuggest(results, query);
         showDropdown(true);
         if (fromButton) {
@@ -538,8 +626,9 @@ function initSearch() {
     }, 120);
 
     input.addEventListener('input', onInput);
+    input.setAttribute('aria-expanded', 'false');
     input.addEventListener('focus', () => {
-        if (input.value.trim()) void runSearch(false);
+        void runSearch(false);
     });
     input.addEventListener('blur', () => {
         window.setTimeout(() => showDropdown(false), 200);
@@ -557,29 +646,42 @@ function initSearch() {
         });
     });
 
-    document.addEventListener('keyup', (e) => {
+    input.addEventListener('keydown', (e) => {
         const paletteOpen = !document.getElementById('cmdk')?.hidden;
         if (paletteOpen) return;
         if (!dropdown || dropdown.hidden) {
-            if (e.key === 'Enter' && document.activeElement === input) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
                 void runSearch(true);
+            }
+            if (e.key === 'Escape') {
+                input.blur();
             }
             return;
         }
         const items = [...dropdown.children] as HTMLElement[];
         const current = items.findIndex((item) => item.classList.contains('ok'));
-        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-            items.forEach((item) => item.classList.remove('ok'));
-            let next = current;
-            if (e.key === 'ArrowDown') next = current < 0 ? 0 : Math.min(current + 1, items.length - 1);
-            else next = current < 0 ? items.length - 1 : Math.max(current - 1, 0);
-            items[next]?.classList.add('ok');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = current < 0 ? 0 : Math.min(current + 1, items.length - 1);
+            setListboxActive(items, next, input, 'search-opt');
+        }
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const next = current < 0 ? items.length - 1 : Math.max(current - 1, 0);
+            setListboxActive(items, next, input, 'search-opt');
         }
         if (e.key === 'Enter') {
+            e.preventDefault();
             const selected = items.find((item) => item.classList.contains('ok'));
             const link = selected?.querySelector('a');
             if (link) link.click();
             else void runSearch(true);
+        }
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            showDropdown(false);
+            input.removeAttribute('aria-activedescendant');
         }
     });
 
@@ -598,3 +700,4 @@ renderFavorites();
 initFavoriteButton();
 initCommandPalette();
 initSearch();
+prefetchSearchIndex();

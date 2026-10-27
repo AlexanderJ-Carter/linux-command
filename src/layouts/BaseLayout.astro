@@ -13,7 +13,7 @@ import '@fontsource/noto-sans-sc/400.css';
 import '@fontsource/noto-sans-sc/500.css';
 import '@fontsource/noto-sans-sc/700.css';
 import CommandPalette from '../components/CommandPalette.astro';
-import { assetHref } from '../lib/paths';
+import { assetHref, withBase } from '../lib/paths';
 
 interface Props {
   title: string;
@@ -62,6 +62,7 @@ const jsonLdString = jsonLd ? JSON.stringify(jsonLd) : '';
     <meta name="twitter:image" content={ogImageUrl} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={assetHref('favicon.svg')} type="image/svg+xml" />
+    <link rel="prefetch" href={withBase('/search-index.json')} as="fetch" crossorigin="anonymous" />
     <title>{title}</title>
     {jsonLdString && (
       <script type="application/ld+json" is:inline set:html={jsonLdString} />
@@ -77,6 +78,7 @@ const jsonLdString = jsonLd ? JSON.stringify(jsonLd) : '';
     </script>
   </head>
   <body class={bodyClass}>
+    <a class="skip-link focus-ring" href="#site_main">跳到主内容</a>
     <slot />
     <CommandPalette />
     <button class="back-to-top focus-ring" id="back_to_top" type="button" aria-label="回到顶部" hidden>

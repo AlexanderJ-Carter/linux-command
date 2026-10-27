@@ -70,6 +70,27 @@ kbd {
   border: 0;
 }
 
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 100;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 0.12s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 .shell {
   width: min(100% - 1.25rem, var(--max));
   margin-inline: auto;
@@ -284,8 +305,8 @@ kbd {
 
 .back-to-top {
   position: fixed;
-  right: 0.85rem;
-  bottom: 0.85rem;
+  right: max(0.85rem, env(safe-area-inset-right, 0px));
+  bottom: max(0.85rem, env(safe-area-inset-bottom, 0px));
   z-index: 40;
   width: 2.25rem;
   height: 2.25rem;

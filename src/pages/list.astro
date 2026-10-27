@@ -10,7 +10,7 @@ const initialQuery = Astro.url.searchParams.get('kw') || '';
 ---
 <BaseLayout title="搜索 | Linux Command" description="按名称或说明搜索 Linux 命令">
   <SiteHeader compact />
-  <main class="site-main">
+  <main class="site-main" id="site_main">
     <div class="shell list-page" data-list-page>
       <SearchBox initialQuery={initialQuery} />
       <header class="page-head">
