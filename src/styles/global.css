@@ -14,22 +14,24 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.65;
+  font-size: var(--text-base);
+  line-height: 1.55;
   color: var(--ink);
-  background:
-    radial-gradient(1200px 500px at 50% -10%, rgba(15, 122, 74, 0.1), transparent 60%),
-    linear-gradient(rgba(20, 32, 26, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 32, 26, 0.035) 1px, transparent 1px),
-    var(--bg);
-  background-size: auto, 28px 28px, 28px 28px, auto;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
 }
 
 a {
   color: var(--accent);
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
+  text-underline-offset: 0.16em;
 }
 
 a:hover {
@@ -48,11 +50,12 @@ pre {
 
 kbd {
   display: inline-block;
-  padding: 0.1em 0.45em;
-  border: 1px solid var(--line);
-  border-radius: 6px;
+  padding: 0.05em 0.4em;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
   background: var(--bg-elevated);
-  font-size: 0.85em;
+  font-size: 0.8em;
+  line-height: 1.35;
 }
 
 .sr-only {
@@ -68,12 +71,13 @@ kbd {
 }
 
 .shell {
-  width: min(100% - 2rem, var(--max));
+  width: min(100% - 1.25rem, var(--max));
   margin-inline: auto;
 }
 
 .site-main {
-  padding-block: 1.5rem 4rem;
+  flex: 1;
+  padding-block: 1rem 3rem;
 }
 
 .focus-ring:focus-visible {
@@ -81,38 +85,56 @@ kbd {
   outline-offset: 2px;
 }
 
+.page-head {
+  margin: 0.75rem 0 0.65rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-head h1 {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.page-head p {
+  margin: 0.3rem 0 0;
+  font-size: var(--text-sm);
+}
+
 .cmd-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem;
+  gap: 0.35rem;
 }
 
 .cmd-chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.35rem 0.75rem;
+  padding: 0.2rem 0.55rem;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  background: transparent;
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
   color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   text-decoration: none;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
 .cmd-chip:hover {
-  background: var(--accent-soft);
   border-color: var(--accent);
   color: var(--accent-strong);
-  transform: translateY(-1px);
+  background: var(--accent-soft);
 }
 
 .section-title {
-  margin: 0 0 0.85rem;
-  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-muted);
 }
@@ -121,19 +143,159 @@ kbd {
   color: var(--ink-muted);
 }
 
-.back-to-top {
-  position: fixed;
-  right: 1.25rem;
-  bottom: 1.25rem;
-  z-index: 40;
-  width: 2.75rem;
-  height: 2.75rem;
+.cmd-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.cmd-list > li {
+  border-bottom: 1px solid var(--line);
+}
+
+.cmd-list > li:last-child {
+  border-bottom: 0;
+}
+
+.cmd-list > li > span {
+  display: block;
+  padding: 0.55rem 0.65rem;
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}
+
+.cmd-row {
+  display: grid;
+  grid-template-columns: minmax(6rem, 11rem) minmax(0, 1fr);
+  gap: 0.65rem 1rem;
+  align-items: baseline;
+  padding: 0.45rem 0.65rem;
+  color: inherit;
+  text-decoration: none;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.cmd-row:hover,
+.cmd-list li.ok .cmd-row,
+.search-box__result li.ok .cmd-row {
+  background: var(--accent-soft);
+}
+
+.cmd-row__name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+.cmd-row__desc {
+  color: var(--ink-muted);
+  min-width: 0;
+}
+
+.cmd-row .kw,
+.cmd-list .kw,
+.search-box__result .kw {
+  color: var(--accent-strong);
+  font-style: normal;
+  font-weight: 700;
+  background: var(--accent-soft);
+  border-radius: 2px;
+}
+
+@media (max-width: 520px) {
+  .cmd-row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
+
+.alpha-nav,
+.cat-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+.alpha-nav a,
+.cat-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.75rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: var(--bg-elevated);
+}
+
+.alpha-nav a:hover,
+.cat-nav a:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.cat-nav a span {
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+}
+
+.alpha-group,
+.cat-group {
+  margin-bottom: 1.35rem;
+  scroll-margin-top: calc(var(--header-h) + 0.75rem);
+}
+
+.alpha-group h2,
+.cat-group h2 {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.load-more {
+  justify-self: start;
+  margin-top: 0.65rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
   background: var(--bg-elevated);
   color: var(--ink);
-  box-shadow: var(--shadow);
   cursor: pointer;
+  font: 600 var(--text-sm) / 1 var(--font-mono);
+}
+
+.load-more:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.back-to-top {
+  position: fixed;
+  right: 0.85rem;
+  bottom: 0.85rem;
+  z-index: 40;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
 }
 
 .back-to-top[hidden] {

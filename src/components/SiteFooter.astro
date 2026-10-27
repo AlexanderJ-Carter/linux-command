@@ -9,23 +9,20 @@ const { commandCount } = Astro.props;
 const year = new Date().getFullYear();
 ---
 <footer class="site-footer">
-  <div class="shell">
+  <div class="shell site-footer__inner">
     <p class="fork-credit muted">
-      Fork 自
-      <a href="https://github.com/jaywcjlove/linux-command" rel="noopener" target="_blank">jaywcjlove/linux-command</a>
-      ，MIT 协议。本站为学习魔改版。
+      文档 fork 自
+      <a href="https://github.com/jaywcjlove/linux-command" rel="noopener noreferrer">jaywcjlove/linux-command</a>
+      （MIT）。本站为静态速查镜像。
     </p>
     <nav class="footer-nav" aria-label="页脚导航">
       <a href={withBase('/')}>首页</a>
-      <span class="sep">·</span>
-      <a href={withBase('/hot')}>字母表</a>
-      <span class="sep">·</span>
+      <a href={withBase('/hot')}>A–Z</a>
       <a href={withBase('/category')}>分类</a>
-      <span class="sep">·</span>
       <a href={withBase('/list')}>搜索</a>
     </nav>
     <p class="footer-meta muted">
-      收录 {commandCount} 个命令 · © {year}
+      {commandCount} entries · © {year}
     </p>
   </div>
 </footer>
@@ -33,32 +30,46 @@ const year = new Date().getFullYear();
 <style>
   .site-footer {
     margin-top: auto;
-    padding: 2.5rem 0 3rem;
-    border-top: 1px solid var(--line);
-    text-align: center;
+    padding: 1.25rem 0 2rem;
+    border-top: 1px solid var(--line-strong);
+    background: var(--bg-elevated);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem 1rem;
+    font-size: var(--text-sm);
   }
 
   .fork-credit,
   .footer-meta {
     margin: 0;
-    font-size: 0.85rem;
   }
 
   .footer-nav {
-    margin: 0.85rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
   }
 
   .footer-nav a {
     color: var(--ink);
     text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
   }
 
   .footer-nav a:hover {
     color: var(--accent-strong);
   }
 
-  .sep {
-    margin: 0 0.4rem;
-    color: var(--ink-muted);
+  @media (max-width: 720px) {
+    .site-footer__inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>

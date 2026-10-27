@@ -111,8 +111,9 @@ function highlight(text: string, query: string) {
 }
 
 function resultHtml(item: IndexItem, query: string) {
-    return `<a href="${commandHref(item.p)}"><strong>${highlight(item.n, query)}</strong>${
-        item.d ? ` - ${highlight(item.d, query)}` : ''
+    const desc = item.d ? highlight(item.d, query) : '';
+    return `<a class="cmd-row" href="${commandHref(item.p)}"><span class="cmd-row__name">${highlight(item.n, query)}</span>${
+        desc ? `<span class="cmd-row__desc">${desc}</span>` : '<span class="cmd-row__desc"></span>'
     }</a>`;
 }
 
@@ -259,7 +260,7 @@ function syncFavoriteButton() {
     const name = header.dataset.cmdName || '';
     const active = isFavorite(name);
     btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-    btn.textContent = active ? '已收藏' : '收藏';
+    btn.textContent = active ? '★ 已收藏' : '☆ 收藏';
     btn.classList.toggle('is-active', active);
 }
 

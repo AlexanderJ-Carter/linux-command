@@ -10,18 +10,20 @@ const { compact = false } = Astro.props;
 <header class:list={['site-header', { 'site-header--compact': compact }]}>
   <div class="shell site-header__inner">
     <a class="brand focus-ring" href={withBase('/')}>
-      <span class="brand__mark" aria-hidden="true">$</span>
-      <span class="brand__text">Linux Command</span>
+      <span class="brand__mark" aria-hidden="true">man</span>
+      <span class="brand__text">linux-command</span>
     </a>
     <nav class="site-nav" aria-label="主导航">
-      <a class="focus-ring" href={withBase('/hot')}>字母表</a>
+      <a class="focus-ring" href={withBase('/hot')}>A–Z</a>
       <a class="focus-ring" href={withBase('/category')}>分类</a>
       <a class="focus-ring" href={withBase('/list')}>搜索</a>
       <button class="cmdk-trigger focus-ring" id="cmdk_open" type="button" aria-label="打开命令面板">
-        面板 <kbd>⌘K</kbd>
+        <span class="cmdk-trigger__label">面板</span>
+        <kbd>Ctrl+K</kbd>
       </button>
-      <button class="theme-toggle focus-ring" id="theme_toggle" type="button" aria-label="切换浅色/暗色">
-        主题
+      <button class="theme-toggle focus-ring" id="theme_toggle" type="button" aria-label="切换浅色/暗色主题">
+        <span aria-hidden="true" class="theme-toggle__icon">◐</span>
+        <span class="sr-only">主题</span>
       </button>
     </nav>
   </div>
@@ -33,9 +35,8 @@ const { compact = false } = Astro.props;
     top: 0;
     z-index: 50;
     height: var(--header-h);
-    border-bottom: 1px solid var(--line);
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
-    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line-strong);
+    background: var(--bg-elevated);
   }
 
   .site-header__inner {
@@ -43,35 +44,38 @@ const { compact = false } = Astro.props;
     align-items: center;
     justify-content: space-between;
     height: 100%;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.5rem;
     color: var(--ink);
     text-decoration: none;
     font-family: var(--font-mono);
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 0.9rem;
     letter-spacing: -0.02em;
   }
 
   .brand__mark {
-    display: grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 8px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.95rem;
+    display: inline-block;
+    padding: 0.12rem 0.35rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--bg-subtle);
+    color: var(--accent-strong);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   .site-nav {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
     justify-content: flex-end;
   }
@@ -81,12 +85,12 @@ const { compact = false } = Astro.props;
   .cmdk-trigger {
     color: var(--ink-muted);
     text-decoration: none;
-    font-size: 0.92rem;
+    font-size: var(--text-sm);
     background: none;
     border: 0;
     cursor: pointer;
-    padding: 0.25rem 0.15rem;
-    font-family: inherit;
+    padding: 0.2rem 0.35rem;
+    font-family: var(--font-mono);
   }
 
   .site-nav a:hover,
@@ -99,29 +103,55 @@ const { compact = false } = Astro.props;
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.15rem 0.45rem;
+    background: var(--bg);
   }
 
   .cmdk-trigger kbd {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
+  }
+
+  .theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0;
+  }
+
+  .theme-toggle__icon {
+    font-size: 0.85rem;
+    line-height: 1;
   }
 
   @media (max-width: 640px) {
     .brand__text {
-      font-size: 0.95rem;
+      font-size: 0.82rem;
     }
 
     .site-nav {
-      gap: 0.55rem;
+      gap: 0.35rem;
     }
 
-    .site-nav a,
-    .theme-toggle,
-    .cmdk-trigger {
-      font-size: 0.82rem;
+    .cmdk-trigger__label {
+      display: none;
     }
 
     .cmdk-trigger kbd {
       display: none;
+    }
+
+    .cmdk-trigger {
+      padding: 0.15rem 0.35rem;
+    }
+
+    .cmdk-trigger::before {
+      content: '⌘';
+      font-size: 0.85rem;
     }
   }
 </style>
