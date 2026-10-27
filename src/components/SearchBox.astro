@@ -8,8 +8,11 @@ const { type = 'page', initialQuery = '' } = Astro.props;
 const isHome = type === 'home';
 ---
 <div class:list={['search-box', { 'search-box--home': isHome }]} data-search-root>
-  <label class="sr-only" for="query">搜索 Linux 命令</label>
+  <label class="search-box__label" for="query">
+    {isHome ? '搜索命令' : '搜索'}
+  </label>
   <div class="search-box__row">
+    <span class="search-box__prompt" aria-hidden="true">/</span>
     <input
       class="search-box__input focus-ring"
       id="query"
@@ -17,20 +20,20 @@ const isHome = type === 'home';
       type="search"
       autocomplete="off"
       spellcheck="false"
-      placeholder={isHome ? '搜索命令名或说明…' : '继续搜索…'}
+      placeholder={isHome ? '命令名或说明关键词…' : '过滤结果…'}
       value={initialQuery}
       aria-controls="result"
       aria-autocomplete="list"
     />
-    <button class="search-box__btn focus-ring" id="search_btn" type="button">搜索</button>
+    <button class="search-box__btn focus-ring" id="search_btn" type="button">Go</button>
   </div>
   {!isHome && (
-      <p class="search-box__hint muted">
-      快捷键 <kbd>/</kbd> 聚焦搜索 · <kbd>Ctrl</kbd>+<kbd>K</kbd> 命令面板
+    <p class="search-box__hint muted">
+      <kbd>/</kbd> 聚焦 · <kbd>Ctrl</kbd>+<kbd>K</kbd> 面板 · 方向键选择
     </p>
   )}
   <ul
-    class="search-box__result"
+    class="search-box__result cmd-list"
     id="result"
     role="listbox"
     aria-label="搜索建议"
@@ -38,6 +41,7 @@ const isHome = type === 'home';
   ></ul>
   {isHome && (
     <div class="search-tips" aria-label="搜索示例">
+      <span class="search-tips__label muted">试:</span>
       <button class="search-tip focus-ring" type="button" data-kw="ls">ls</button>
       <button class="search-tip focus-ring" type="button" data-kw="查找文件">查找文件</button>
       <button class="search-tip focus-ring" type="button" data-kw="chmod">chmod</button>
@@ -49,21 +53,43 @@ const isHome = type === 'home';
 <style>
   .search-box {
     position: relative;
-    width: min(100%, 640px);
+    width: min(100%, 680px);
   }
 
   .search-box--home {
-    width: min(100%, 720px);
+    width: min(100%, 760px);
+  }
+
+  .search-box__label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
   }
 
   .search-box__row {
     display: flex;
     align-items: stretch;
-    border: 1px solid var(--line);
-    border-radius: 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
     background: var(--bg-elevated);
-    box-shadow: var(--shadow);
     overflow: hidden;
+  }
+
+  .search-box__prompt {
+    display: grid;
+    place-items: center;
+    padding: 0 0.65rem;
+    border-right: 1px solid var(--line);
+    background: var(--bg-subtle);
+    color: var(--accent-strong);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.95rem;
   }
 
   .search-box__input {
@@ -72,8 +98,8 @@ const isHome = type === 'home';
     border: 0;
     background: transparent;
     color: var(--ink);
-    font: 500 1.05rem/1.4 var(--font-mono);
-    padding: 0.95rem 1rem;
+    font: 500 0.95rem/1.4 var(--font-mono);
+    padding: 0.65rem 0.75rem;
   }
 
   .search-box__input::placeholder {
@@ -83,21 +109,27 @@ const isHome = type === 'home';
 
   .search-box__btn {
     border: 0;
-    border-left: 1px solid var(--line);
-    background: var(--accent);
-    color: #fff;
-    font: 600 0.95rem/1 var(--font-sans);
-    padding: 0 1.25rem;
+    border-left: 1px solid var(--line-strong);
+    background: var(--ink);
+    color: var(--bg);
+    font: 600 0.8rem/1 var(--font-mono);
+    padding: 0 1rem;
     cursor: pointer;
+    letter-spacing: 0.04em;
+  }
+
+  html[data-theme='dark'] .search-box__btn {
+    background: var(--accent);
+    color: var(--bg);
   }
 
   .search-box__btn:hover {
-    background: var(--accent-strong);
+    filter: brightness(1.08);
   }
 
   .search-box__hint {
-    margin: 0.55rem 0 0;
-    font-size: 0.85rem;
+    margin: 0.4rem 0 0;
+    font-size: 0.75rem;
   }
 
   .search-box__result {
@@ -105,15 +137,8 @@ const isHome = type === 'home';
     z-index: 30;
     left: 0;
     right: 0;
-    top: calc(100% + 0.45rem);
-    margin: 0;
-    padding: 0.4rem;
-    list-style: none;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: var(--bg-elevated);
-    box-shadow: var(--shadow);
-    max-height: 320px;
+    top: calc(100% + 0.35rem);
+    max-height: min(360px, 50vh);
     overflow: auto;
   }
 
@@ -121,44 +146,27 @@ const isHome = type === 'home';
     display: none;
   }
 
-  .search-box__result :global(li) {
-    border-radius: 8px;
-  }
-
-  .search-box__result :global(a) {
-    display: block;
-    padding: 0.65rem 0.75rem;
-    color: var(--ink);
-    text-decoration: none;
-    border-radius: 8px;
-  }
-
-  .search-box__result :global(a:hover),
-  .search-box__result :global(li.ok a) {
-    background: var(--accent-soft);
-  }
-
-  .search-box__result :global(.kw) {
-    color: var(--accent-strong);
-    font-style: normal;
-    font-weight: 700;
-  }
-
   .search-tips {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.9rem;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.65rem;
+  }
+
+  .search-tips__label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
   }
 
   .search-tip {
-    border: 1px dashed var(--line);
-    border-radius: 999px;
-    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
     color: var(--ink-muted);
-    padding: 0.3rem 0.7rem;
+    padding: 0.2rem 0.5rem;
     cursor: pointer;
-    font: 500 0.85rem/1 var(--font-mono);
+    font: 500 0.78rem/1 var(--font-mono);
   }
 
   .search-tip:hover {

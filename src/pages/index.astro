@@ -11,38 +11,38 @@ const commands = loadCommands();
 const popular = getPopularCommands(commands);
 ---
 <BaseLayout
-  title="Linux Command"
-  description={`收录 ${commands.length} 个 Linux 命令，支持名称与说明全文搜索。`}
+  title="Linux Command — 命令手册速查"
+  description={`收录 ${commands.length} 个 Linux 命令。名称与说明全文检索，适合终端旁快速查阅。`}
   bodyClass="page-home"
 >
   <SiteHeader />
   <main class="site-main">
     <section class="hero shell">
-      <p class="hero__eyebrow">TERMINAL PAPER</p>
-      <h1 class="hero__brand">Linux Command</h1>
-      <p class="hero__lead">
-        收录 <strong>{commands.length}</strong> 个命令手册。输入名称或中文说明，立刻定位。
-      </p>
+      <header class="hero__head">
+        <p class="hero__tag">offline-friendly · static · {commands.length} pages</p>
+        <h1 class="hero__title">Linux 命令参考</h1>
+        <p class="hero__lead muted">
+          高密度手册视图：搜索名称或中文说明，<kbd>Ctrl+K</kbd> 打开面板，<kbd>/</kbd> 聚焦搜索框。
+        </p>
+      </header>
       <SearchBox type="home" />
-      <div class="hero__links">
-        <a href={withBase('/hot')}>字母列表</a>
-        <span aria-hidden="true">·</span>
-        <a href={withBase('/category')}>分类浏览</a>
-        <span aria-hidden="true">·</span>
-        <a href={withBase('/list')}>高级搜索</a>
-      </div>
+      <nav class="hero__links" aria-label="快捷入口">
+        <a href={withBase('/hot')}>A–Z 列表</a>
+        <a href={withBase('/category')}>分类索引</a>
+        <a href={withBase('/list')}>全量搜索</a>
+      </nav>
       {popular.length > 0 && (
         <div class="hero__block">
-          <h2 class="section-title">常用命令</h2>
-          <CommandChips items={popular} label="常用命令" />
+          <h2 class="section-title">高频命令</h2>
+          <CommandChips items={popular} label="高频命令" />
         </div>
       )}
       <div class="hero__block favorite-commands" id="favorite_commands" hidden>
-        <h2 class="section-title">我的收藏</h2>
+        <h2 class="section-title">收藏</h2>
         <div class="cmd-chips" id="favorite_commands_list" aria-label="收藏的命令"></div>
       </div>
       <div class="hero__block recent-commands" id="recent_commands" hidden>
-        <h2 class="section-title">最近查看</h2>
+        <h2 class="section-title">最近</h2>
         <div class="cmd-chips" id="recent_commands_list" aria-label="最近查看的命令"></div>
       </div>
     </section>
@@ -52,80 +52,67 @@ const popular = getPopularCommands(commands);
 
 <style>
   .page-home .site-main {
-    display: grid;
-    align-items: center;
-    min-height: calc(100vh - var(--header-h) - 8rem);
+    padding-block: 1.25rem 2.5rem;
   }
 
   .hero {
     display: grid;
-    justify-items: center;
-    text-align: center;
-    gap: 1rem;
-    padding-block: 2rem 3rem;
-    animation: rise 0.55s ease both;
+    gap: 0.85rem;
+    max-width: 760px;
   }
 
-  .hero__eyebrow {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.18em;
-    color: var(--accent);
+  .hero__head {
+    display: grid;
+    gap: 0.35rem;
   }
 
-  .hero__brand {
+  .hero__tag {
     margin: 0;
     font-family: var(--font-mono);
-    font-size: clamp(2.4rem, 7vw, 4.2rem);
-    line-height: 1.05;
-    letter-spacing: -0.04em;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: lowercase;
+    color: var(--accent-strong);
+  }
+
+  .hero__title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: clamp(1.65rem, 4.5vw, 2.35rem);
+    line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.03em;
   }
 
   .hero__lead {
-    margin: 0 0 0.5rem;
-    max-width: 34rem;
-    color: var(--ink-muted);
-    font-size: 1.05rem;
-  }
-
-  .hero__lead strong {
-    color: var(--ink);
-    font-weight: 700;
+    margin: 0;
+    font-size: var(--text-sm);
+    max-width: 38rem;
   }
 
   .hero__links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.45rem;
-    justify-content: center;
-    color: var(--ink-muted);
-    font-size: 0.95rem;
+    gap: 0.5rem;
   }
 
   .hero__links a {
+    padding: 0.25rem 0.55rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
     color: var(--ink);
     text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
   }
 
   .hero__links a:hover {
+    border-color: var(--accent);
     color: var(--accent-strong);
   }
 
   .hero__block {
-    width: min(100%, 720px);
-    margin-top: 1.25rem;
-    text-align: left;
-  }
-
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    margin-top: 0.5rem;
   }
 </style>
