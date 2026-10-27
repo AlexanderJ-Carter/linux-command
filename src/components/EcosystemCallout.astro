@@ -1,0 +1,45 @@
+---
+import { ECOSYSTEM, suggestsNetq } from '../lib/ecosystem';
+
+interface Props {
+  commandName: string;
+}
+
+const { commandName } = Astro.props;
+const showNetq = suggestsNetq(commandName);
+---
+{showNetq && (
+  <aside class="eco-callout" aria-label="站群工具">
+    <p class="eco-callout__lead muted">
+      终端旁排查网络？试交互式 CLI
+      <a href={ECOSYSTEM.netq.href} rel="noopener noreferrer">{ECOSYSTEM.netq.label}</a>
+      — {ECOSYSTEM.netq.title}
+    </p>
+  </aside>
+)}
+
+<style>
+  .eco-callout {
+    margin: 0 0 0.5rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--bg-subtle);
+    font-size: var(--text-sm);
+  }
+
+  .eco-callout__lead {
+    margin: 0;
+    font-family: var(--font-mono);
+    line-height: 1.45;
+  }
+
+  .eco-callout a {
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .eco-callout a:hover {
+    text-decoration: underline;
+  }
+</style>

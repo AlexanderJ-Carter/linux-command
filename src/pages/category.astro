@@ -6,13 +6,14 @@ import SearchBox from '../components/SearchBox.astro';
 import { loadCommands } from '../lib/commands';
 import { buildCategoryGroups } from '../data/categories';
 import { commandHref } from '../lib/paths';
+import { ECOSYSTEM } from '../lib/ecosystem';
 
 const commands = loadCommands();
 const categories = buildCategoryGroups(commands);
 ---
 <BaseLayout title="分类 | Linux Command" description="按用途浏览 Linux 命令">
   <SiteHeader compact />
-  <main class="site-main">
+  <main class="site-main" id="site_main">
     <div class="shell">
       <SearchBox />
       <header class="page-head">
@@ -27,6 +28,12 @@ const categories = buildCategoryGroups(commands);
       {categories.map((cat) => (
         <section class="cat-group" id={cat.id}>
           <h2>{cat.name} <span class="muted">({cat.count})</span></h2>
+          {cat.id === 'network' && (
+            <p class="cat-aside muted">
+              需要交互式排查？→
+              <a href={ECOSYSTEM.netq.href} rel="noopener noreferrer">{ECOSYSTEM.netq.label}</a>
+            </p>
+          )}
           <ul class="cmd-list">
             {cat.items.map((cmd) => (
               <li>
@@ -43,3 +50,16 @@ const categories = buildCategoryGroups(commands);
   </main>
   <SiteFooter commandCount={commands.length} />
 </BaseLayout>
+
+<style>
+  .cat-aside {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+  }
+
+  .cat-aside a {
+    font-weight: 600;
+    text-decoration: none;
+  }
+</style>

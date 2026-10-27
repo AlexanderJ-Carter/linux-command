@@ -5,6 +5,7 @@ import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import SearchBox from '../../components/SearchBox.astro';
 import CommandChips from '../../components/CommandChips.astro';
+import EcosystemCallout from '../../components/EcosystemCallout.astro';
 import { loadCommands } from '../../lib/commands';
 import { relatedCommands } from '../../data/categories';
 import { withBase } from '../../lib/paths';
@@ -38,9 +39,10 @@ const jsonLd = {
   bodyClass="page-cmd"
 >
   <SiteHeader compact />
-  <main class="site-main">
+  <main class="site-main" id="site_main">
     <div class="shell cmd-top">
       <SearchBox />
+      <EcosystemCallout commandName={cmd.n} />
       <nav class="breadcrumb" aria-label="面包屑">
         <a href={withBase('/')}>~</a>
         <span aria-hidden="true">/</span>
